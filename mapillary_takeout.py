@@ -15,7 +15,7 @@ def get_mpy_auth(email, password):
     headers = {'Host': 'a.mapillary.com',
                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0',
                'Accept': 'application/json',
-               'Accept-Language': 'da,en-US;q=0.7,en;q=0.3',
+               'Accept-Language': 'en-US,en;q=0.5',
                'Referer': 'https://www.mapillary.com/app/',
                'Content-Type': 'application/json',
                'Origin': 'https://www.mapillary.com',
@@ -30,7 +30,7 @@ def get_user_sequences(mpy_token, username):
     response = []
     nb_images = 0
 
-    url = 'https://a.mapillary.com/v3/sequences?client_id=' + CLIENT_ID + '&usernames=' + username + '&per_page=' + SEQUENCES_PER_PAGE
+    url = 'https://a.mapillary.com/v3/sequences?client_id=' + CLIENT_ID + '&usernames=' + username + '&per_page=' + SEQUENCES_PER_PAGE + '&end_time=2017-05-24'
     headers = {'Host': 'a.mapillary.com',
                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0',
                'Accept': '*/*',
@@ -107,7 +107,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         paths='[["imageByKey",' + image_keys + ',["original_url"]]]'
         url = 'https://a.mapillary.com/v3/model.json?client_id=' + CLIENT_ID + '&paths=' + paths + '&method=get'
         headers = {'Host': 'a.mapillary.com',
-                   'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0',
+                   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0',
                    'Accept': '*/*',
                    'Accept-Language': 'en-US,en;q=0.5',
                    'Referer': 'https://www.mapillary.com/app/&' + username,
