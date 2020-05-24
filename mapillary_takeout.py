@@ -30,7 +30,7 @@ def get_user_sequences(mpy_token, username):
     response = []
     nb_images = 0
 
-    url = 'https://a.mapillary.com/v3/sequences?client_id=' + CLIENT_ID + '&usernames=' + username + '&per_page=' + SEQUENCES_PER_PAGE + '&end_time=2017-05-24'
+    url = 'https://a.mapillary.com/v3/sequences?client_id=' + CLIENT_ID + '&usernames=' + username + '&per_page=' + SEQUENCES_PER_PAGE
     headers = {'Host': 'a.mapillary.com',
                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0',
                'Accept': '*/*',
