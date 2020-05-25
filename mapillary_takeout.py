@@ -7,7 +7,7 @@ import requests
 
 CLIENT_ID = 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo1YTM0NjRkM2EyZGU5MzBh'
 SEQUENCES_PER_PAGE = '200' # max from API is 1000, but timeouts.
-REQUESTS_PER_CALL = 200 # 220 max, 200 is safe.
+REQUESTS_PER_CALL = 210 # 220 max, 200 is safe.
 
 def get_mpy_auth(email, password):
     # returns mapillary token
@@ -57,15 +57,31 @@ def get_user_sequences(mpy_token, username):
     # '''
     return(response)
 
-def download_image(url, sorted_path, download_path):
-    headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0'}
-    r = requests.get(url, headers=headers)
-    if r.status_code == requests.codes.ok:
-        with open(download_path, 'wb') as f:
-            f.write(r.content)
-            os.link(download_path, sorted_path)
-    else:
-        print('Error downloading %r, skipping' % sorted_path)
+def get_source_urls(download_list, mpy_token, username):
+    source_urls = {}
+    chunks = [download_list[x:x+REQUESTS_PER_CALL] for x in range(0, len(download_list), REQUESTS_PER_CALL)]
+    for chunk in chunks:
+        image_keys = '[\"' + "\",\"".join(chunk) + '\"]'
+        paths='[["imageByKey",' + image_keys + ',["original_url"]]]'
+        url = 'https://a.mapillary.com/v3/model.json?client_id=' + CLIENT_ID + '&paths=' + paths + '&method=get'
+        headers = {'Host': 'a.mapillary.com',
+                   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0',
+                   'Accept': '*/*',
+                   'Accept-Language': 'en-US,en;q=0.5',
+                   'Referer': 'https://www.mapillary.com/app/&' + username,
+                   'Content-Type': 'application/x-www-form-urlencoded',
+                   'Origin': 'https://www.mapillary.com',
+                   'Connection': 'keep-alive',
+                   'DNT': '1',
+                   'Authorization': 'Bearer ' + mpy_token}
+        r = requests.get(url, headers=headers)
+        if 'jsonGraph' in r.json():
+            for i in r.json()['jsonGraph']['imageByKey']:
+                if 'value' in r.json()['jsonGraph']['imageByKey'][i]['original_url']:
+                    source_urls[i] = r.json()['jsonGraph']['imageByKey'][i]['original_url']['value']
+                else:
+                    print('Cant locate original_url for image %r' % i)
+    return(source_urls)
 
 def download_sequence(output_folder, mpy_token, sequence, username):
     sequence_name = sequence['properties']['captured_at']
@@ -97,30 +113,8 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         return
 
     # Second pass : split in chunks and feed into source_urls dict
-    source_urls = {}
-    chunks = [download_list[x:x+REQUESTS_PER_CALL] for x in range(0, len(download_list), REQUESTS_PER_CALL)]
-    for chunk in chunks:
-        image_keys = '[\"' + "\",\"".join(chunk) + '\"]'
-        paths='[["imageByKey",' + image_keys + ',["original_url"]]]'
-        url = 'https://a.mapillary.com/v3/model.json?client_id=' + CLIENT_ID + '&paths=' + paths + '&method=get'
-        headers = {'Host': 'a.mapillary.com',
-                   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0',
-                   'Accept': '*/*',
-                   'Accept-Language': 'en-US,en;q=0.5',
-                   'Referer': 'https://www.mapillary.com/app/&' + username,
-                   'Content-Type': 'application/x-www-form-urlencoded',
-                   'Origin': 'https://www.mapillary.com',
-                   'Connection': 'keep-alive',
-                   'DNT': '1',
-                   'Authorization': 'Bearer ' + mpy_token}
-        r = requests.get(url, headers=headers)
-        if 'jsonGraph' in r.json():
-            for i in r.json()['jsonGraph']['imageByKey']:
-                if 'value' in r.json()['jsonGraph']['imageByKey'][i]['original_url']:
-                    source_urls[i] = r.json()['jsonGraph']['imageByKey'][i]['original_url']['value']
-                else:
-                    print('Cant locate original_url for image %r' % i)
-                        
+    source_urls = get_source_urls(download_list, mpy_token, username)
+
     # Third pass, download if entry is found in dict
     image_index = 0
     for i in range(len(sequence['properties']['coordinateProperties']['image_keys'])):
@@ -130,7 +124,14 @@ def download_sequence(output_folder, mpy_token, sequence, username):
             sorted_path = sorted_folder + '/' + sequence_name + '_' + "%04d" % image_index + '.jpg'
             download_path = sequence_folder + '/' + image_key + '.jpg'
             print('Downloading image %r' % sorted_path)
-            download_image(source_urls[image_key], sorted_path, download_path)
+            headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0'}
+            r = requests.get(source_urls[image_key], headers=headers)
+            if r.status_code == requests.codes.ok:
+                with open(download_path, 'wb') as f:
+                    f.write(r.content)
+                    os.link(download_path, sorted_path)
+            else:
+                print('Error downloading %r, code %r text %r skipping' % (sorted_path, r.status_code, r.text))
 
 def main(email, password, username, output_folder):
     mpy_token = get_mpy_auth(email, password)
