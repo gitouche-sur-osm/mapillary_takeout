@@ -100,9 +100,6 @@ def download_sequence(output_folder, mpy_token, sequence, username):
     source_urls = {}
     chunks = [download_list[x:x+REQUESTS_PER_CALL] for x in range(0, len(download_list), REQUESTS_PER_CALL)]
     for chunk in chunks:
-        # Chunks are sometimes empty. 
-        if not chunk:
-            break
         image_keys = '[\"' + "\",\"".join(chunk) + '\"]'
         paths='[["imageByKey",' + image_keys + ',["original_url"]]]'
         url = 'https://a.mapillary.com/v3/model.json?client_id=' + CLIENT_ID + '&paths=' + paths + '&method=get'
@@ -138,7 +135,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
 def main(email, password, username, output_folder):
     mpy_token = get_mpy_auth(email, password)
     user_sequences = get_user_sequences(mpy_token, username)
-    for sequence in user_sequences:
+    for sequence in reversed(user_sequences):
         print('Sequence %r' % sequence['properties']['captured_at'])
         download_sequence(output_folder, mpy_token, sequence, username)
     return 0
