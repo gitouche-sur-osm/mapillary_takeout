@@ -98,7 +98,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
 
     # Second pass : split in chunks and feed into source_urls dict
     source_urls = {}
-    chunks = [download_list[x:x+REQUESTS_PER_CALL] for x in range(0, len(sequence['properties']['coordinateProperties']['image_keys']), REQUESTS_PER_CALL)]
+    chunks = [download_list[x:x+REQUESTS_PER_CALL] for x in range(0, len(download_list), REQUESTS_PER_CALL)]
     for chunk in chunks:
         # Chunks are sometimes empty. 
         if not chunk:
