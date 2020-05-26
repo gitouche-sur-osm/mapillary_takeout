@@ -2,12 +2,14 @@
 
 import os
 import sys
+import re
 import json
 import requests
 
 CLIENT_ID = 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo1YTM0NjRkM2EyZGU5MzBh'
-SEQUENCES_PER_PAGE = '200' # max from API is 1000, but timeouts.
-REQUESTS_PER_CALL = 210 # 220 max, 200 is safe.
+SEQUENCES_PER_PAGE = '100' # max from API is 1000, but timeouts.
+REQUESTS_PER_CALL = 210 # 220 max.
+SEQUENCE_DL_MAX_RETRIES = 5 # If your download speed is really slow, go higher.
 
 def get_mpy_auth(email, password):
     # returns mapillary token
@@ -84,7 +86,7 @@ def get_source_urls(download_list, mpy_token, username):
     return(source_urls)
 
 def download_sequence(output_folder, mpy_token, sequence, username):
-    sequence_name = sequence['properties']['captured_at']
+    sequence_name = sequence['properties']['captured_at'] + '_' + sequence['properties']['created_at']
     sequence_day = sequence_name.split('T')[0]
     sequence_folder = output_folder + '/downloads/' + sequence_name
     sorted_folder = output_folder + '/sorted/' + sequence_day
@@ -99,15 +101,20 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         image_key = sequence['properties']['coordinateProperties']['image_keys'][i]
         sorted_path = sorted_folder + '/' + sequence_name + '_' + "%04d" % image_index + '.jpg'
         download_path = sequence_folder + '/' + image_key + '.jpg'
-        
-        if not (os.path.isfile(download_path) and os.path.isfile(sorted_path)):
+
+        if (os.path.isfile(download_path) and os.path.isfile(sorted_path)):
+            if os.path.samefile(download_path, sorted_path):
+                print('Image %r already downloaded' % sorted_path)
+            else:
+                os.remove(download_path)
+                os.remove(sorted_path)
+                download_list.append(sequence['properties']['coordinateProperties']['image_keys'][i])
+        else:
             if os.path.exists(download_path):
                 os.remove(download_path)
             if os.path.exists(sorted_path):
                 os.remove(sorted_path)
             download_list.append(sequence['properties']['coordinateProperties']['image_keys'][i])
-        else:
-            print('Image %r already downloaded' % sorted_path)
     if not download_list:
         print('Sequence %r already fully downloaded' % sequence_name)
         return
@@ -116,28 +123,36 @@ def download_sequence(output_folder, mpy_token, sequence, username):
     source_urls = get_source_urls(download_list, mpy_token, username)
 
     # Third pass, download if entry is found in dict
-    image_index = 0
-    for i in range(len(sequence['properties']['coordinateProperties']['image_keys'])):
-        image_key = sequence['properties']['coordinateProperties']['image_keys'][i]
-        image_index += 1
-        if image_key in download_list:
-            sorted_path = sorted_folder + '/' + sequence_name + '_' + "%04d" % image_index + '.jpg'
-            download_path = sequence_folder + '/' + image_key + '.jpg'
-            print('Downloading image %r' % sorted_path)
-            headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0'}
-            r = requests.get(source_urls[image_key], headers=headers)
-            if r.status_code == requests.codes.ok:
-                with open(download_path, 'wb') as f:
-                    f.write(r.content)
-                    os.link(download_path, sorted_path)
-            else:
-                print('Error downloading %r, code %r text %r skipping' % (sorted_path, r.status_code, r.text))
+    sequence_dl_retries = 0
+    while (download_list and not sequence_dl_retries >= SEQUENCE_DL_MAX_RETRIES):
+        sequence_dl_retries += 1
+        image_index = 0
+        for i in range(len(sequence['properties']['coordinateProperties']['image_keys'])):
+            image_key = sequence['properties']['coordinateProperties']['image_keys'][i]
+            image_index += 1
+            if image_key in download_list:
+                sorted_path = sorted_folder + '/' + sequence_name + '_' + "%04d" % image_index + '.jpg'
+                download_path = sequence_folder + '/' + image_key + '.jpg'
+                print('Downloading image %r' % sorted_path)
+                headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0'}
+                r = requests.get(source_urls[image_key], headers=headers)
+                if r.status_code == requests.codes.ok:
+                    with open(download_path, 'wb') as f:
+                        f.write(r.content)
+                        os.link(download_path, sorted_path)
+                    download_list.remove(image_key)
+                elif (r.status_code == 403 and re.match('<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\\n<Error><Code>AccessDenied<\/Code><Message>Request has expired<\/Message>', r.text)):
+                    print('Download token expired, requesting fresh one ...')
+                    source_urls = get_source_urls(download_list, mpy_token, username)
+                    break
+                else:
+                    print('Error downloading %r' % sorted_path)
 
 def main(email, password, username, output_folder):
     mpy_token = get_mpy_auth(email, password)
     user_sequences = get_user_sequences(mpy_token, username)
     for sequence in reversed(user_sequences):
-        print('Sequence %r' % sequence['properties']['captured_at'])
+        print('Sequence %s_%s' % (sequence['properties']['captured_at'], sequence['properties']['created_at']))
         download_sequence(output_folder, mpy_token, sequence, username)
     return 0
 
