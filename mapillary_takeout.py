@@ -56,7 +56,7 @@ def get_user_sequences(mpy_token, username):
             )
         print("Fetching %s sequences (%s images) ..." % (nb_seq, nb_images))
     # '''
-    return response
+    return (response, nb_seq)
 
 
 def get_source_urls(download_list, mpy_token, username):
@@ -165,17 +165,17 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     + ".jpg"
                 )
                 download_path = sequence_folder + "/" + image_key + ".jpg"
-                print(" Downloading image %r" % sorted_path)
+                # print(" Downloading image %r" % sorted_path)
 
                 # Get the header first (stream) and compare size
                 r = requests.get(source_urls[image_key], stream=True)
                 if r.status_code == requests.codes.ok:
                     size = int(r.headers['content-length'])
                     if os.path.isfile(download_path) and os.path.getsize(download_path) == size:
-                        print("  Already downloaded as %r", image_key)
+                        print("  Already downloaded as %r", download_path)
                     else:
                         if os.path.isfile(download_path):
-                            print("  Size mismatch for %r, replacing..." % image_key)
+                            print("  Size mismatch for %r, replacing..." % download_path)
                         with open(download_path, "wb") as f:
                             f.write(r.content)
 
@@ -190,19 +190,21 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     r.close()
                     break
                 else:
-                    print(" Error downloading %r" % sorted_path)
+                    print("  Error downloading %r" % download_path)
                 r.close()
-
+    print(" Done downloading sequence %r" % sequence_name)
 
 def main(email, password, username, output_folder):
     mpy_token = get_mpy_auth(email, password)
-    user_sequences = get_user_sequences(mpy_token, username)
-    for sequence in reversed(user_sequences):
+    user_sequences, nb_sequences = get_user_sequences(mpy_token, username)
+    for c, sequence in enumerate(reversed(user_sequences), 1):
         print(
-            "Sequence %s_%s"
+            "Sequence %s_%s (%d/%d)"
             % (
                 sequence["properties"]["captured_at"],
                 sequence["properties"]["created_at"],
+                c,
+                nb_sequences
             )
         )
         download_sequence(output_folder, mpy_token, sequence, username)
