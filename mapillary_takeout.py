@@ -109,7 +109,6 @@ def download_sequence(output_folder, mpy_token, sequence, username):
 
         if os.path.isfile(download_path) and os.path.isfile(sorted_path):
             if os.path.samefile(download_path, sorted_path):
-                print("Image %r already downloaded" % sorted_path)
                 pass
             else:
                 # Fail safe, the file will be erased at download time
@@ -127,12 +126,12 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                 to_remove.append(sorted_path)
             download_list.append(image_key)
     if not download_list:
-        print("Sequence %r already fully downloaded" % sequence_name)
+        print(" Sequence %r already fully downloaded" % sequence_name)
         return
 
-    print("Already downloaded: %d/%d" % (len(image_keys) - len(download_list),len(image_keys)))
-    print("Non-consistent links:", len(to_remove))
-    print("Images without link:", len(linkless_images))
+    print(" Already downloaded: %d/%d" % (len(image_keys) - len(download_list),len(image_keys)))
+    print(" Non-consistent links:", len(to_remove))
+    print(" Images without link:", len(linkless_images))
 
     if DRY_RUN:
         return
@@ -146,7 +145,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
 
     if len(download_list) > len(source_urls):
         print(
-            "Missing %d/%d images"
+            " Missing %d/%d images"
             % (len(download_list) - len(source_urls), len(download_list))
         )
 
@@ -166,17 +165,17 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     + ".jpg"
                 )
                 download_path = sequence_folder + "/" + image_key + ".jpg"
-                print("Downloading image %r" % sorted_path)
+                print(" Downloading image %r" % sorted_path)
 
                 # Get the header first (stream) and compare size
                 r = requests.get(source_urls[image_key], stream=True)
                 if r.status_code == requests.codes.ok:
                     size = int(r.headers['content-length'])
                     if os.path.isfile(download_path) and os.path.getsize(download_path) == size:
-                        print("Already downloaded as %r", image_key)
+                        print("  Already downloaded as %r", image_key)
                     else:
                         if os.path.isfile(download_path):
-                            print("Size mismatch for %r, replacing..." % image_key)
+                            print("  Size mismatch for %r, replacing..." % image_key)
                         with open(download_path, "wb") as f:
                             f.write(r.content)
 
@@ -186,12 +185,12 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     '<\?xml version="1\.0" encoding="UTF-8"\?>\\n<Error><Code>AccessDenied<\/Code><Message>Request has expired<\/Message>',
                     r.text,
                 ):
-                    print("Download token expired, requesting fresh one ...")
+                    print(" Download token expired, requesting fresh one ...")
                     source_urls = get_source_urls(download_list, mpy_token, username)
                     r.close()
                     break
                 else:
-                    print("Error downloading %r" % sorted_path)
+                    print(" Error downloading %r" % sorted_path)
                 r.close()
 
 
