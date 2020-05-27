@@ -35,26 +35,29 @@ def get_mpy_auth(email, password):
     return r.json()["token"]
 
 
-def get_user_sequences(mpy_token, username):
+def get_user_sequences(mpy_token, username, start_date, end_date):
     # returns sequences as json https://www.mapillary.com/developer/api-documentation/#the-sequence-object
     response = []
     nb_images = 0
     headers = {"Authorization": "Bearer " + mpy_token}
 
-    r = requests.get(SEQUENCES_URL, headers=headers, params={"usernames": username})
+    params={"usernames": username}
+    if start_date:
+        params['start_time'] = start_date
+    if end_date:
+        params['end_time'] = end_date
+    r = requests.get(SEQUENCES_URL, headers=headers, params=params)
     for feature in r.json()["features"]:
         response.append(feature)
         nb_images += len(feature["properties"]["coordinateProperties"]["image_keys"])
-
+    nb_seq = len(response)
     # '''
     while "next" in r.links:
         r = requests.get(r.links["next"]["url"], headers=headers)
         for feature in r.json()["features"]:
             response.append(feature)
-            nb_seq = len(response)
-            nb_images += len(
-                feature["properties"]["coordinateProperties"]["image_keys"]
-            )
+            nb_images += len(feature["properties"]["coordinateProperties"]["image_keys"])
+        nb_seq = len(response)
         print("Fetching %s sequences (%s images) ..." % (nb_seq, nb_images))
     # '''
     return (response, nb_seq)
@@ -202,9 +205,9 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                 r.close()
     print(" Done downloading sequence %r" % sequence_name)
 
-def main(email, password, username, output_folder):
+def main(email, password, username, output_folder, start_date, end_date):
     mpy_token = get_mpy_auth(email, password)
-    user_sequences, nb_sequences = get_user_sequences(mpy_token, username)
+    user_sequences, nb_sequences = get_user_sequences(mpy_token, username, start_date, end_date)
     for c, sequence in enumerate(reversed(user_sequences), 1):
         print(
             "Sequence %s_%s (%d/%d)"
@@ -220,17 +223,17 @@ def main(email, password, username, output_folder):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Download your images from Mapillary.')
-    parser.add_argument("email", help='Your email address for mapillary authentication.')
-    parser.add_argument("password", help='Your mapillary password.')
-    parser.add_argument("username", help='Your mapillary username.')
-    parser.add_argument("output_folder", help='Download destination.')
-    parser.add_argument('--start-date', help='Filter sequences that are captured since start_date.', metavar='YYYY-MM-DD')
-    parser.add_argument('--end-date', help='Filter sequences that are captured before end_date.', metavar='YYYY-MM-DD')
-    parser.add_argument("-D", "--dry-run", action="store_true")
+    parser = argparse.ArgumentParser(description='Download your images from Mapillary')
+    parser.add_argument("email", help='Your email address for mapillary authentication')
+    parser.add_argument("password", help='Your mapillary password')
+    parser.add_argument("username", help='Your mapillary username')
+    parser.add_argument("output_folder", help='Download destination')
+    parser.add_argument('--start-date', help='Filter sequences that are captured since this date', metavar='YYYY-MM-DD')
+    parser.add_argument('--end-date', help='Filter sequences that are captured before this date', metavar='YYYY-MM-DD')
+    parser.add_argument("-D", "--dry-run", action="store_true", help="Check sequences status and leave")
     args = parser.parse_args()
 
     if args.dry_run:
         DRY_RUN = True
 
-    exit(main(args.email, args.password, args.username, args.output_folder))
+    exit(main(args.email, args.password, args.username, args.output_folder, args.start_date, args.end_date))
