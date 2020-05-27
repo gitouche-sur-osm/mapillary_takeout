@@ -5,6 +5,7 @@ import sys
 import re
 import json
 import requests
+import argparse
 
 # mapillary_tools client_id
 CLIENT_ID = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo1YTM0NjRkM2EyZGU5MzBh"
@@ -219,13 +220,17 @@ def main(email, password, username, output_folder):
 
 
 if __name__ == "__main__":
-    if '-d' in sys.argv:
+    parser = argparse.ArgumentParser(description='Download your images from Mapillary.')
+    parser.add_argument("email", help='Your email address for mapillary authentication.')
+    parser.add_argument("password", help='Your mapillary password.')
+    parser.add_argument("username", help='Your mapillary username.')
+    parser.add_argument("output_folder", help='Download destination.')
+    parser.add_argument('--start-date', help='Filter sequences that are captured since start_date.', metavar='YYYY-MM-DD')
+    parser.add_argument('--end-date', help='Filter sequences that are captured before end_date.', metavar='YYYY-MM-DD')
+    parser.add_argument("-D", "--dry-run", action="store_true")
+    args = parser.parse_args()
+
+    if args.dry_run:
         DRY_RUN = True
-        sys.argv.remove('-d')
-    if len(sys.argv) != 5:
-        print(
-            "Usage: python %s <email> <password> <username> <output_folder>"
-            % sys.argv[0]
-        )
-        sys.exit(-1)
-    exit(main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]))
+
+    exit(main(args.email, args.password, args.username, args.output_folder))
