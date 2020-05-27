@@ -41,12 +41,9 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
     nb_images = 0
     headers = {"Authorization": "Bearer " + mpy_token}
 
-    params={"usernames": username}
-    if start_date:
-        params['start_time'] = start_date
-    if end_date:
-        params['end_time'] = end_date
-    r = requests.get(SEQUENCES_URL, headers=headers, params=params)
+    r = requests.get(SEQUENCES_URL, headers=headers, params={'usernames': username,
+                                                             'start_time': start_date,
+                                                             'end_time': end_date})
     for feature in r.json()["features"]:
         response.append(feature)
         nb_images += len(feature["properties"]["coordinateProperties"]["image_keys"])
