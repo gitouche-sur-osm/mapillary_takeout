@@ -80,7 +80,8 @@ def get_source_urls(download_list, mpy_token, username):
                 if "value" in image["original_url"]:
                     source_urls[image_key] = image["original_url"]["value"]
                 else:
-                    print("Cant locate original_url for image %r" % image_key)
+                    print("Cant locate original_url for image %r DEBUG %r"
+                          % (image_key, r.text))
     return source_urls
 
 
@@ -143,17 +144,18 @@ def download_sequence(output_folder, mpy_token, sequence, username):
     # Second pass : split in chunks and feed into source_urls dict
     source_urls = get_source_urls(download_list, mpy_token, username)
 
-    if len(download_list) > len(source_urls):
-        print(
-            " Missing %d/%d images"
-            % (len(download_list) - len(source_urls), len(download_list))
-        )
-
     # Third pass, download if entry is found in dict
     sequence_dl_retries = 0
     while download_list and not sequence_dl_retries >= SEQUENCE_DL_MAX_RETRIES:
         sequence_dl_retries += 1
         image_index = 0
+
+        if len(download_list) > len(source_urls):
+            print(
+                " Missing %d/%d images"
+                % (len(download_list) - len(source_urls), len(download_list))
+            )
+
         for image_index, image_key in enumerate(image_keys, 1):
             if image_key in download_list:
                 sorted_path = (
@@ -165,7 +167,12 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     + ".jpg"
                 )
                 download_path = sequence_folder + "/" + image_key + ".jpg"
-                # print(" Downloading image %r" % sorted_path)
+
+                if image_key not in source_urls:
+                    print('  No source url for image %s : refreshing source urls'
+                          % image_key)
+                    source_urls = get_source_urls(download_list, mpy_token, username)
+                    break
 
                 # Get the header first (stream) and compare size
                 r = requests.get(source_urls[image_key], stream=True)
