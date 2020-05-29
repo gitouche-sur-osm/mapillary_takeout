@@ -1,6 +1,6 @@
 # mapillary_takeout
 
-This script allows you to download all your imagery from Mapillary. The official mapillary_tools download option only allows for bulk download of the blurred and compressed versions of the images. This scripts will download the "original unprocessed" images as you sent them to Mapillary.
+This script downloads all your imagery from Mapillary. The official mapillary_tools download option only allows for bulk download of the blurred and compressed versions of the images. This scripts will download the "original unprocessed" images as you sent them to Mapillary.
 
 ## Usage
 
@@ -29,5 +29,4 @@ optional arguments:
 ## Acknowledgments
 
 * Simon Mikkelsen original gist https://gist.github.com/simonmikkelsen/478accbc7b62c0c7786d6cd95fb09cae
-* anonymous helper
-
+* Anonymous helper

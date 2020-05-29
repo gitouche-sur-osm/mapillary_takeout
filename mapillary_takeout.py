@@ -43,12 +43,14 @@ def get_mpy_auth(email, password):
     payload = {"email": email, "password": password}
     r = requests.post(LOGIN_URL, json=payload)
     if 'token' in r.json():
+        r.close()
         return r.json()["token"]
     elif 'message' in r.json():
         print(
             'Authentication failed: %s'
             % r.json()['message']
         )
+    r.close()
     sys.exit(-1)
 
 
@@ -72,12 +74,14 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
     for feature in r.json()["features"]:
         response.append(feature)
         nb_images += len(feature["properties"]["coordinateProperties"]["image_keys"])
+    r.close()
     nb_seq = len(response)
     while "next" in r.links:
         r = requests.get(r.links["next"]["url"], headers=headers)
         for feature in r.json()["features"]:
             response.append(feature)
             nb_images += len(feature["properties"]["coordinateProperties"]["image_keys"])
+        r.close()
         nb_seq = len(response)
         print("Fetching %s sequences (%s images) ..." % (nb_seq, nb_images))
     return (response, nb_seq)
@@ -110,6 +114,7 @@ def get_source_urls(download_list, mpy_token, username):
                 else:
                     print("Cant locate original_url for image %r DEBUG %r"
                           % (image_key, r.text))
+        r.close()
     return source_urls
 
 
@@ -120,24 +125,16 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         + sequence["properties"]["created_at"]
     )
     sequence_day = sequence_name.split("T")[0]
-    sequence_folder = (
-        output_folder
-        + "/downloads/"
-        + sequence_name
-    )
     sorted_folder = (
         output_folder
-        + "/sorted/"
+        + '/'
         + sequence_day
     )
     download_list = []
-    os.makedirs(sequence_folder, exist_ok=True)
     os.makedirs(sorted_folder, exist_ok=True)
 
     # First pass on image_keys : sorts which one needs downloading
     image_keys = sequence["properties"]["coordinateProperties"]["image_keys"]
-    to_remove = []
-    linkless_images = []
     for image_index, image_key in enumerate(image_keys, 1):
         sorted_path = (
             sorted_folder
@@ -147,23 +144,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
             + "%04d" % image_index
             + ".jpg"
         )
-        download_path = (
-            sequence_folder
-            + "/"
-            + image_key
-            + ".jpg"
-        )
-
-        if os.path.isfile(download_path) and os.path.isfile(sorted_path):
-            if not os.path.samefile(download_path, sorted_path):
-                linkless_images.append(download_path)
-                to_remove.append(sorted_path)
-                download_list.append(image_key)
-        else:
-            if os.path.exists(download_path):
-                linkless_images.append(download_path)
-            if os.path.exists(sorted_path):
-                to_remove.append(sorted_path)
+        if not os.path.exists(sorted_path):
             download_list.append(image_key)
     if not download_list:
         print(" Sequence %r already fully downloaded" % sequence_name)
@@ -173,15 +154,9 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         " Already downloaded: %d/%d"
         % (len(image_keys) - len(download_list),len(image_keys))
     )
-    print(" Non-consistent links:", len(to_remove))
-    print(" Images without link:", len(linkless_images))
 
     if DRY_RUN:
         return
-
-    # Delete wrong sorted hard links
-    for sorted_path in to_remove:
-        os.remove(sorted_path)
 
     # Second pass : split in chunks and feed into source_urls dict
     source_urls = get_source_urls(download_list, mpy_token, username)
@@ -208,12 +183,6 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     + "%04d" % image_index
                     + ".jpg"
                 )
-                download_path = (
-                    sequence_folder
-                    + "/"
-                    + image_key
-                    + ".jpg"
-                )
 
                 if image_key not in source_urls:
                     print(
@@ -231,22 +200,20 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                 r = requests.get(source_urls[image_key], stream=True)
                 if r.status_code == requests.codes.ok:
                     size = int(r.headers['content-length'])
-                    if (os.path.isfile(download_path) and
-                        os.path.getsize(download_path) == size):
+                    if (os.path.isfile(sorted_path) and
+                        os.path.getsize(sorted_path) == size):
                         print(
                             "  Already downloaded as %r"
-                            % download_path
+                            % sorted_path
                         )
                     else:
-                        if os.path.isfile(download_path):
+                        if os.path.isfile(sorted_path):
                             print(
                                 "  Size mismatch for %r, replacing..."
-                                % download_path
+                                % sorted_path
                             )
-                        with open(download_path, "wb") as f:
+                        with open(sorted_path, "wb") as f:
                             f.write(r.content)
-
-                    os.link(download_path, sorted_path)
                     download_list.remove(image_key)
                 elif (r.status_code == 403 and
                       re.match(AWS_EXPIRED, r.text)):
@@ -261,7 +228,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                 else:
                     print(
                         "  Error downloading %r"
-                        % download_path
+                        % image_key
                     )
                 r.close()
     print(
