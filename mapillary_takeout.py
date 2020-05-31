@@ -10,9 +10,9 @@ import sys
 # mapillary_tools client_id
 CLIENT_ID = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo1YTM0NjRkM2EyZGU5MzBh"
 
-SEQUENCES_PER_PAGE = "100"   # max from API is 1000, but timeouts.
-REQUESTS_PER_CALL = 210      # 220 max.
-SEQUENCE_DL_MAX_RETRIES = 5  # If your download speed is really slow, go higher.
+SEQUENCES_PER_PAGE = "100"   # Max from API is 1000, but timeouts
+REQUESTS_PER_CALL = 210      # 220 max
+SEQUENCE_DL_MAX_RETRIES = 3  # Number of retries for a sequence
 
 API_ENDPOINT = "https://a.mapillary.com"
 
@@ -55,8 +55,8 @@ def get_mpy_auth(email, password):
 
 
 def get_user_sequences(mpy_token, username, start_date, end_date):
-    # Fetches all sequences for the username and returns them
-    # in an array of json objects
+    # Fetches all sequences for the username and
+    # returns them in an array of json objects
     # https://www.mapillary.com/developer/api-documentation/#the-sequence-object
     response = []
     nb_images = 0
@@ -192,12 +192,28 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     source_urls = get_source_urls(
                         download_list,
                         mpy_token,
-                        username
+                        username,
                     )
                     break
 
                 # Get the header first (stream) and compare size
-                r = requests.get(source_urls[image_key], stream=True)
+                try:
+                    r = requests.get(source_urls[image_key], stream=True)
+                except requests.exceptions.SSLError:
+                    print(
+                        "  SSL error downloading %r, retrying later"
+                        % image_key
+                    )
+                    break
+                except:
+                    print(
+                        "  Error downloading %r, retrying later. Info %r"
+                        % (
+                            image_key,
+                            sys.exc_info()[0],
+                        )
+                    )
+                    break
                 if r.status_code == requests.codes.ok:
                     size = int(r.headers['content-length'])
                     if (os.path.isfile(sorted_path) and
@@ -221,14 +237,20 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     source_urls = get_source_urls(
                         download_list,
                         mpy_token,
-                        username
+                        username,
                     )
                     r.close()
+                    # Slow downloads are not an error
+                    sequence_dl_retries -= 1
                     break
                 else:
                     print(
-                        "  Error downloading %r"
-                        % image_key
+                        "  Error %r downloading image %r : %r"
+                        % (
+                            r.status_code,
+                            image_key,
+                            r.text,
+                        )
                     )
                 r.close()
     print(
