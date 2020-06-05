@@ -96,11 +96,6 @@ def get_source_urls(download_list, mpy_token, username):
             for image_key, image in data["jsonGraph"]["imageByKey"].items():
                 if "value" in image["original_url"]:
                     source_urls[image_key] = image["original_url"]["value"]
-                else:
-                    print(
-                        "Cant locate original_url for image %r DEBUG %r"
-                        % (image_key, r.text)
-                    )
         r.close()
     return source_urls
 
