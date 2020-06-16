@@ -157,6 +157,13 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     + ".jpg"
                 )
 
+                print(
+                    "  Downloading image %s #%03d/%03d"
+                    % (image_key, image_index, len(image_keys)),
+                    end="\r",
+                    flush=True,
+                )
+
                 if image_key not in source_urls:
                     print(
                         "  No source url for image %s : refreshing source urls"
@@ -191,7 +198,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                             f.write(r.content)
                     download_list.remove(image_key)
                 elif r.status_code == 403 and re.match(AWS_EXPIRED, r.text):
-                    print(" Download token expired, requesting fresh one ...")
+                    print(" Download token expired, requesting fresh one ...  ")
                     source_urls = get_source_urls(download_list, mpy_token, username,)
                     r.close()
                     # Slow downloads are not an error
