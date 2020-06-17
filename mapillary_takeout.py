@@ -123,10 +123,12 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         print(" Sequence %r already fully downloaded" % sequence_name)
         return
 
-    print(
-        " Already downloaded: %d/%d"
-        % (len(image_keys) - len(download_list), len(image_keys))
-    )
+    already_downloaded = len(image_keys) - len(download_list)
+    if already_downloaded:
+        print(
+            " Already downloaded: %d/%d"
+            % (already_downloaded, len(image_keys))
+        )
 
     if DRY_RUN:
         return
