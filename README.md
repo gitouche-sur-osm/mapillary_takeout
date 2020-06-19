@@ -34,4 +34,5 @@ optional arguments:
 ## Acknowledgments
 
 * Simon Mikkelsen original gist https://gist.github.com/simonmikkelsen/478accbc7b62c0c7786d6cd95fb09cae
-* Anonymous helper
+* Anonymous helper (thank you!)
+* Another anonymous helper (thank you very much!)

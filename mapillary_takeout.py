@@ -133,6 +133,8 @@ def download_sequence(output_folder, mpy_token, sequence, username):
     # Second pass : split in chunks and feed into source_urls dict
     source_urls = get_source_urls(download_list, mpy_token, username)
 
+    requests_session = requests.Session()
+
     # Third pass, download if entry is found in dict
     sequence_dl_retries = 0
     while download_list and not sequence_dl_retries >= SEQUENCE_DL_MAX_RETRIES:
@@ -173,7 +175,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
 
                 # Get the header first (stream) and compare size
                 try:
-                    r = requests.get(source_urls[image_key], stream=True)
+                    r = requests_session.get(source_urls[image_key], stream=True)
                 except requests.exceptions.SSLError:
                     print("  SSL error downloading %r, retrying later" % image_key)
                     break
