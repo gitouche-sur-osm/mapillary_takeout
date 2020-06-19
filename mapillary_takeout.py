@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import json
@@ -125,10 +125,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
 
     already_downloaded = len(image_keys) - len(download_list)
     if already_downloaded:
-        print(
-            " Already downloaded: %d/%d"
-            % (already_downloaded, len(image_keys))
-        )
+        print(" Already downloaded: %d/%d" % (already_downloaded, len(image_keys)))
 
     if DRY_RUN:
         return
