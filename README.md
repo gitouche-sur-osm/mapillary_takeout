@@ -2,6 +2,11 @@
 
 This script downloads your imagery from Mapillary. The official mapillary_tools download option only allows for bulk download of the blurred and compressed versions of the images. This script will download the "original unprocessed" images as you sent them to Mapillary.
 
+## Requirements
+
+* Python 3
+* [Requests library](https://requests.readthedocs.io)
+
 ## Usage
 
 ```
