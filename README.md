@@ -12,16 +12,19 @@ This script downloads your imagery from Mapillary. The official mapillary_tools 
 ### Install and run
 #### Get the code
 With git (preffered) :
-```git clone https://github.com/gitouche-sur-osm/mapillary_takeout.git
+```
+git clone https://github.com/gitouche-sur-osm/mapillary_takeout.git
 cd mapillary_takeout
 ```
 OR with wget :
-```wget https://github.com/gitouche-sur-osm/mapillary_takeout/archive/master.zip
+```
+wget https://github.com/gitouche-sur-osm/mapillary_takeout/archive/master.zip
 unzip master.zip
 cd mapillary_takeout-master
 ```
 #### Run the code
-```chmod +x mapillary_takeout.py
+```
+chmod +x mapillary_takeout.py
 ./mapillary_takeout.py <email> <password> <username> <output_folder>
 ```
 ## Full usage
