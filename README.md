@@ -27,6 +27,14 @@ cd mapillary_takeout-master
 chmod +x mapillary_takeout.py
 ./mapillary_takeout.py <email> <password> <username> <output_folder>
 ```
+Example
+```
+./mapillary_takeout.py gitouche@email.com azerty123 gitouche /path/to/backup
+```
+You should quote your fields if they contain special characters :
+```
+./mapillary_takeout.py gitouche@email.com 'password;with special|characters' gitouche '/path/to/MY BACKUP'
+```
 ## Full usage
 ```
 usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD]
