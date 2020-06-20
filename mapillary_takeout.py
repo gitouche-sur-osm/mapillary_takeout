@@ -166,6 +166,8 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         )
         if not os.path.exists(sorted_path):
             download_list.append(image_key)
+        elif os.stat(sorted_path).st_size == 0:
+            download_list.append(image_key)
     if not download_list:
         print(" Sequence %r already fully downloaded" % sequence_name)
         return
@@ -214,7 +216,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                 if image_key:
                     download_list.remove(image_key)
                 print(
-                    "  Downloading image #%03d/%03d" % (i, len(image_keys)),
+                    "  Downloading image #%03d/%03d" % (i, len(pool_args)),
                     end="\r",
                     flush=True,
                 )
