@@ -7,6 +7,23 @@ import re
 import requests
 import sys
 
+from multiprocessing.pool import ThreadPool
+
+
+class SSLException(Exception):
+    pass
+
+
+class DownloadException(Exception):
+    pass
+
+
+class URLExpireException(Exception):
+    pass
+
+
+NUM_THREADS = 10
+
 # mapillary_tools client_id
 CLIENT_ID = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo1YTM0NjRkM2EyZGU5MzBh"
 
@@ -100,6 +117,36 @@ def get_source_urls(download_list, mpy_token, username):
     return source_urls
 
 
+def download_file(args):
+    image_key, sorted_path, source_url = args
+    try:
+        r = requests.get(source_url, stream=True)
+    except requests.exceptions.SSLError:
+        raise SSLException("SSL error downloading %r, retrying later" % image_key)
+    except:
+        raise DownloadException(
+            "Error downloading %r, retrying later. Info %r"
+            % (image_key, sys.exc_info()[0],)
+        )
+    if r.status_code == requests.codes.ok:
+        size = int(r.headers["content-length"])
+        if os.path.isfile(sorted_path) and os.path.getsize(sorted_path) == size:
+            print("  Already downloaded as %r" % sorted_path)
+        else:
+            if os.path.isfile(sorted_path):
+                print("  Size mismatch for %r, replacing..." % sorted_path)
+            with open(sorted_path, "wb") as f:
+                f.write(r.content)
+        return image_key
+    elif r.status_code == 403 and re.match(AWS_EXPIRED, r.text):
+        raise URLExpireException("Download token expired, requesting fresh one ...")
+    else:
+        print(
+            "  Error %r downloading image %r : %r" % (r.status_code, image_key, r.text,)
+        )
+    return False
+
+
 def download_sequence(output_folder, mpy_token, sequence, username):
     sequence_name = (
         sequence["properties"]["captured_at"]
@@ -130,16 +177,15 @@ def download_sequence(output_folder, mpy_token, sequence, username):
     if DRY_RUN:
         return
 
-    # Second pass : split in chunks and feed into source_urls dict
-    source_urls = get_source_urls(download_list, mpy_token, username)
-
-    requests_session = requests.Session()
-
     # Third pass, download if entry is found in dict
     sequence_dl_retries = 0
+    update_urls = True
     while download_list and not sequence_dl_retries >= SEQUENCE_DL_MAX_RETRIES:
+        if update_urls:
+            source_urls = get_source_urls(download_list, mpy_token, username)
+            update_urls = False
+
         sequence_dl_retries += 1
-        image_index = 0
 
         if len(download_list) > len(source_urls):
             print(
@@ -147,6 +193,8 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                 % (len(download_list) - len(source_urls), len(download_list))
             )
 
+        pool = ThreadPool(NUM_THREADS)
+        pool_args = []
         for image_index, image_key in enumerate(image_keys, 1):
             if image_key in download_list:
                 sorted_path = (
@@ -157,60 +205,31 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     + "%04d" % image_index
                     + ".jpg"
                 )
+                source_url = source_urls[image_key]
 
+                pool_args.append((image_key, sorted_path, source_url))
+
+        try:
+            for i, image_key in enumerate(pool.imap(download_file, pool_args), 1):
+                if image_key:
+                    download_list.remove(image_key)
                 print(
-                    "  Downloading image %s #%03d/%03d"
-                    % (image_key, image_index, len(image_keys)),
+                    "  Downloading image #%03d/%03d" % (i, len(image_keys)),
                     end="\r",
                     flush=True,
                 )
-
-                if image_key not in source_urls:
-                    print(
-                        "  No source url for image %s : refreshing source urls"
-                        % image_key
-                    )
-                    source_urls = get_source_urls(download_list, mpy_token, username,)
-                    break
-
-                # Get the header first (stream) and compare size
-                try:
-                    r = requests_session.get(source_urls[image_key], stream=True)
-                except requests.exceptions.SSLError:
-                    print("  SSL error downloading %r, retrying later" % image_key)
-                    break
-                except:
-                    print(
-                        "  Error downloading %r, retrying later. Info %r"
-                        % (image_key, sys.exc_info()[0],)
-                    )
-                    break
-                if r.status_code == requests.codes.ok:
-                    size = int(r.headers["content-length"])
-                    if (
-                        os.path.isfile(sorted_path)
-                        and os.path.getsize(sorted_path) == size
-                    ):
-                        print("  Already downloaded as %r" % sorted_path)
-                    else:
-                        if os.path.isfile(sorted_path):
-                            print("  Size mismatch for %r, replacing..." % sorted_path)
-                        with open(sorted_path, "wb") as f:
-                            f.write(r.content)
-                    download_list.remove(image_key)
-                elif r.status_code == 403 and re.match(AWS_EXPIRED, r.text):
-                    print(" Download token expired, requesting fresh one ...  ")
-                    source_urls = get_source_urls(download_list, mpy_token, username,)
-                    r.close()
-                    # Slow downloads are not an error
-                    sequence_dl_retries -= 1
-                    break
-                else:
-                    print(
-                        "  Error %r downloading image %r : %r"
-                        % (r.status_code, image_key, r.text,)
-                    )
-                r.close()
+        except SSLException as e:
+            print(e)
+        except DownloadException as e:
+            print(e)
+        except URLExpireException as e:
+            print(e)
+            sequence_dl_retries -= 1
+            # refresh urls
+            update_urls = True
+        finally:
+            pool.terminate()
+            pool.join()
     print(" Done downloading sequence %r" % sequence_name)
 
 
