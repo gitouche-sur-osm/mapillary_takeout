@@ -2,13 +2,29 @@
 
 This script downloads your imagery from Mapillary. The official mapillary_tools download option only allows for bulk download of the blurred and compressed versions of the images. This script will download the "original unprocessed" images as you sent them to Mapillary.
 
-## Requirements
+## Getting started
+
+### Requirements
 
 * Python 3
 * [Requests library](https://requests.readthedocs.io)
 
-## Usage
+### Install and run
+#### Get the code
+With git (preffered) :
+```git clone https://github.com/gitouche-sur-osm/mapillary_takeout.git
+cd mapillary_takeout
+```
+OR with wget :
+```wget https://github.com/gitouche-sur-osm/mapillary_takeout/archive/master.zip
+unzip master.zip
+cd mapillary_takeout-master
+```
+#### Run the code
+```chmod +x mapillary_takeout.py
+./mapillary_takeout.py <email> <password> <username> <output_folder>
 
+## Full usage
 ```
 usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD]
                             [--end-date YYYY-MM-DD] [-D]
