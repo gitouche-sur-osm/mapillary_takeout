@@ -61,11 +61,11 @@ optional arguments:
 ## Friendly projects
 
 * [Mapillary Takeout Web](https://github.com/frodrigo/mapillary_takeout_web) : web frontend for mapillary_takeout
-* [Exit Mapillary](https://framagit.org/Midgard/exit-mapillary) : remove all photos from your Mapillary account.
+* [Exit Mapillary](https://framagit.org/Midgard/exit-mapillary) : remove all photos from your Mapillary account
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details
 
 ## Acknowledgments
 
