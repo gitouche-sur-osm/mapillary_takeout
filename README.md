@@ -58,6 +58,11 @@ optional arguments:
   -D, --dry-run         Check sequences status and leave
 ```							
 
+## Friendly projects
+
+* [Mapillary Takeout Web] : web frontend for mapillary_takeout
+* [Exit Mapillary](https://framagit.org/Midgard/exit-mapillary) : remove all photos from your Mapillary account.
+
 ## Acknowledgments
 
 * Simon Mikkelsen original gist https://gist.github.com/simonmikkelsen/478accbc7b62c0c7786d6cd95fb09cae
