@@ -60,7 +60,7 @@ optional arguments:
 
 ## Friendly projects
 
-* [Mapillary Takeout Web] : web frontend for mapillary_takeout
+* [Mapillary Takeout Web](https://github.com/frodrigo/mapillary_takeout_web) : web frontend for mapillary_takeout
 * [Exit Mapillary](https://framagit.org/Midgard/exit-mapillary) : remove all photos from your Mapillary account.
 
 ## Acknowledgments
