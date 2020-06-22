@@ -240,6 +240,12 @@ def main(email, password, username, output_folder, start_date, end_date):
     user_sequences, nb_sequences = get_user_sequences(
         mpy_token, username, start_date, end_date
     )
+    if not nb_sequences:
+        print(
+            "No sequences found to download. Check this is the valid username at https://www.mapillary.com/app/user/%s"
+            % username
+        )
+        sys.exit(-2)
     for c, sequence in enumerate(reversed(user_sequences), 1):
         print(
             "Sequence %s_%s (%d/%d)"
