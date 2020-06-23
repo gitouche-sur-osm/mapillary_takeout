@@ -207,9 +207,12 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     + "%04d" % image_index
                     + ".jpg"
                 )
-                source_url = source_urls[image_key]
+                try:
+                  source_url = source_urls[image_key]
 
-                pool_args.append((image_key, sorted_path, source_url))
+                  pool_args.append((image_key, sorted_path, source_url))
+                except:
+                  print("Missing image key skipped")   
 
         try:
             for i, image_key in enumerate(pool.imap(download_file, pool_args), 1):
