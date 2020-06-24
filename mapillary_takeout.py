@@ -191,9 +191,12 @@ def download_sequence(output_folder, mpy_token, sequence, username):
 
         if len(download_list) > len(source_urls):
             print(
-                " Missing %d/%d images"
+                " Missing %d/%d images : will refresh and retry later"
                 % (len(download_list) - len(source_urls), len(download_list))
             )
+            sequence_dl_retries -= 1
+            # refresh list after this pass
+            update_urls = True
 
         pool = ThreadPool(NUM_THREADS)
         pool_args = []
@@ -207,9 +210,9 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                     + "%04d" % image_index
                     + ".jpg"
                 )
-                source_url = source_urls[image_key]
-
-                pool_args.append((image_key, sorted_path, source_url))
+                if image_key in source_urls:
+                    source_url = source_urls[image_key]
+                    pool_args.append((image_key, sorted_path, source_url))
 
         try:
             for i, image_key in enumerate(pool.imap(download_file, pool_args), 1):
