@@ -170,14 +170,14 @@ def download_sequence(output_folder, mpy_token, sequence, username):
             download_list.append(image_key)
     if not download_list:
         print(" Sequence %r already fully downloaded" % sequence_name)
-        return
+        return 0, 0
 
     already_downloaded = len(image_keys) - len(download_list)
     if already_downloaded:
         print(" Already downloaded: %d/%d" % (already_downloaded, len(image_keys)))
 
     if DRY_RUN:
-        return
+        return 1, len(download_list)
 
     # Third pass, download if entry is found in dict
     sequence_dl_retries = 0
@@ -236,7 +236,11 @@ def download_sequence(output_folder, mpy_token, sequence, username):
             pool.terminate()
             pool.join()
     print(" Done downloading sequence %r" % sequence_name)
+    return 1, len(source_urls)
 
+def add(tgt, src):
+    for i in range(len(tgt)):
+        tgt[i] += src[i]
 
 def main(email, password, username, output_folder, start_date, end_date):
     mpy_token = get_mpy_auth(email, password)
@@ -249,6 +253,7 @@ def main(email, password, username, output_folder, start_date, end_date):
             % username
         )
         sys.exit(-2)
+    accumulated_stats = [0, 0] # seq, img,
     for c, sequence in enumerate(reversed(user_sequences), 1):
         print(
             "Sequence %s_%s (%d/%d)"
@@ -259,7 +264,10 @@ def main(email, password, username, output_folder, start_date, end_date):
                 nb_sequences,
             )
         )
-        download_sequence(output_folder, mpy_token, sequence, username)
+        stats = download_sequence(output_folder, mpy_token, sequence, username)
+        add(accumulated_stats, stats)
+    if DRY_RUN:
+        print(accumulated_stats, "[sequences, images] would have been downloaded without the dry run")
     return 0
 
 
