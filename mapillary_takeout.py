@@ -238,9 +238,11 @@ def download_sequence(output_folder, mpy_token, sequence, username):
     print(" Done downloading sequence %r" % sequence_name)
     return 1, len(source_urls)
 
+
 def add(tgt, src):
     for i in range(len(tgt)):
         tgt[i] += src[i]
+
 
 def main(email, password, username, output_folder, start_date, end_date):
     mpy_token = get_mpy_auth(email, password)
@@ -253,7 +255,7 @@ def main(email, password, username, output_folder, start_date, end_date):
             % username
         )
         sys.exit(-2)
-    accumulated_stats = [0, 0] # seq, img,
+    accumulated_stats = [0, 0]  # seq, img,
     for c, sequence in enumerate(reversed(user_sequences), 1):
         print(
             "Sequence %s_%s (%d/%d)"
@@ -267,7 +269,10 @@ def main(email, password, username, output_folder, start_date, end_date):
         stats = download_sequence(output_folder, mpy_token, sequence, username)
         add(accumulated_stats, stats)
     if DRY_RUN:
-        print(accumulated_stats, "[sequences, images] would have been downloaded without the dry run")
+        print(
+            "%s images in %s sequences would have been downloaded without the dry run"
+            % (accumulated_stats[1], accumulated_stats[0],)
+        )
     return 0
 
 
