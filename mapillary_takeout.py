@@ -57,6 +57,11 @@ def get_mpy_auth(email, password):
         return r.json()["token"]
     elif "message" in r.json():
         print("Authentication failed: %s" % r.json()["message"])
+    else:
+        print(
+            "  HTML Error %r with authentication : %r" % (r.status_code, r.text,)
+        )
+
     r.close()
     sys.exit(-1)
 
