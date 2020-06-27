@@ -157,6 +157,8 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         + "_"
         + sequence["properties"]["created_at"]
     )
+    if os.name == "nt":
+        sequence_name = sequence_name.replace(":", "_")
     sequence_day = sequence_name.split("T")[0]
     sorted_folder = output_folder + "/" + sequence_day
     download_list = []
