@@ -52,10 +52,10 @@ def get_mpy_auth(email, password):
     # Returns mapillary token
     payload = {"email": email, "password": password}
     r = requests.post(LOGIN_URL, json=payload)
-    if "token" in r.json():
+    if r and "token" in r.json():
         r.close()
         return r.json()["token"]
-    elif "message" in r.json():
+    elif r and "message" in r.json():
         print("Authentication failed: %s" % r.json()["message"])
     else:
         print(
