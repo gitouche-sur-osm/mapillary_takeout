@@ -13,13 +13,13 @@ This script downloads your imagery from Mapillary. The official mapillary_tools 
 #### Get the code
 With git (preffered) :
 ```
-git clone https://framagit.org/gitouche/mapillary_takeout.git
+git clone https://github.com/gitouche-sur-osm/mapillary_takeout.git
 cd mapillary_takeout
 ```
 OR with wget :
 ```
-wget https://framagit.org/gitouche/mapillary_takeout/-/archive/master/mapillary_takeout-master.zip
-unzip mapillary_takeout-master
+wget https://github.com/gitouche-sur-osm/mapillary_takeout/archive/master.zip
+unzip master.zip
 cd mapillary_takeout-master
 ```
 #### Run the code
