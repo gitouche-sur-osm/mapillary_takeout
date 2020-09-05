@@ -124,7 +124,7 @@ def get_source_urls(download_list, mpy_token, username):
 def download_file(args):
     image_key, sorted_path, source_url = args
     try:
-        r = requests.get(source_url, stream=True)
+        r = requests.get(source_url, stream=True, timeout=10)
     except requests.exceptions.SSLError:
         raise SSLException("SSL error downloading %r, retrying later" % image_key)
     except:
@@ -139,8 +139,14 @@ def download_file(args):
         else:
             if os.path.isfile(sorted_path):
                 print("  Size mismatch for %r, replacing..." % sorted_path)
-            with open(sorted_path, "wb") as f:
-                f.write(r.content)
+
+            try:
+                with open(sorted_path, "wb") as f:
+                    f.write(r.content)
+            except:
+                raise DownloadException(
+                    "Error downloading image %r, retrying later. Info %r" % (image_key, sys.exc_info()[0],))
+
         return image_key
     elif r.status_code == 403 and re.match(AWS_EXPIRED, r.text):
         raise URLExpireException("Download token expired, requesting fresh one ...")
