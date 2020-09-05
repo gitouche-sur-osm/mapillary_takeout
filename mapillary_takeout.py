@@ -34,7 +34,7 @@ SEQUENCES_PER_PAGE = "100"
 REQUESTS_PER_CALL = 210
 
 # Number of retries for a sequence
-SEQUENCE_DL_MAX_RETRIES = 16
+SEQUENCE_DL_MAX_RETRIES = 32
 
 # verbose level 0..2
 # 0: only import messages, like errors
@@ -219,7 +219,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
 
         sequence_dl_retries += 1
         
-        print("sequence download retries counter: %r" % sequence_dl_retries)
+        print("sequence download retries: %s/%s" % (sequence_dl_retries, SEQUENCE_DL_MAX_RETRIES))
 
         if len(download_list) > len(source_urls):
             print(
@@ -328,7 +328,7 @@ if __name__ == "__main__":
     parser.add_argument( "--debug", metavar="0..2",  help="set global debug level")
     parser.add_argument( "--timeout", metavar="0..300",  help="set connection timeout")
     parser.add_argument( "--threads", metavar="1..100",  help="number of threads")
-    parser.add_argument( "--retries", metavar="1..10",  help="sequence max retries")
+    parser.add_argument( "--retries", metavar="1..512",  help="sequence max retries")
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status and leave"
     )
@@ -356,10 +356,10 @@ if __name__ == "__main__":
             
     if args.retries:
         retries = int(args.retries)
-        if retries > 0 and retries <= 100:
+        if retries > 0 and retries <= 512:
             SEQUENCE_DL_MAX_RETRIES = retries
         else:
-            print ("retries parameter is out of range 0..100: %s, ignored" % retries)
+            print ("retries parameter is out of range 0..512: %s, ignored" % retries)
 
 
     exit(
