@@ -312,6 +312,7 @@ if __name__ == "__main__":
     )
     parser.add_argument( "--debug", metavar="0..2",  help="set global debug level")
     parser.add_argument( "--timeout", metavar="0..300",  help="set connection timeout")
+    parser.add_argument( "--threads", metavar="1..100",  help="number of threads")
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status and leave"
     )
@@ -329,6 +330,14 @@ if __name__ == "__main__":
             TIMEOUT = timeout
         else:
             print ("timeout parameter is out of range 0..300: %s, ignored" % timeout)
+
+    if args.threads:
+        threads = int(args.threads)
+        if threads > 0 and threads <= 100:
+            NUM_THREADS = threads
+        else:
+            print ("timeout parameter is out of range 0..100: %s, ignored" % threads)
+
 
     exit(
         main(
