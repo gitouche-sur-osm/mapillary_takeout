@@ -13,7 +13,7 @@ from multiprocessing.pool import ThreadPool
 ##################################################################################################
 # config
 #
-NUM_THREADS = 10
+NUM_THREADS = 16
 
 # mapillary_tools client_id
 CLIENT_ID = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo1YTM0NjRkM2EyZGU5MzBh"
@@ -36,7 +36,7 @@ DEBUG = 0
 
 # connection timeout to AWS S3
 # this will raise an exception for a download, and we retry to download the image later
-TIMEOUT=10
+TIMEOUT=5
 
 API_ENDPOINT = "https://a.mapillary.com"
 
