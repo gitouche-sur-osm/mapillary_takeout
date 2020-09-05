@@ -46,6 +46,7 @@ MODEL_URL = API_ENDPOINT + "/v3/model.json?client_id=" + CLIENT_ID
 AWS_EXPIRED = '<\?xml version="1\.0" encoding="UTF-8"\?>\\n<Error><Code>AccessDenied<\/Code><Message>Request has expired<\/Message>'
 
 DRY_RUN = False
+DEBUG = 0
 
 
 def get_mpy_auth(email, password):
@@ -135,10 +136,12 @@ def download_file(args):
     if r.status_code == requests.codes.ok:
         size = int(r.headers["content-length"])
         if os.path.isfile(sorted_path) and os.path.getsize(sorted_path) == size:
-            print("  Already downloaded as %r" % sorted_path)
+            if DEBUG >= 2:
+                print("  Already downloaded as %r" % sorted_path)
         else:
             if os.path.isfile(sorted_path):
-                print("  Size mismatch for %r, replacing..." % sorted_path)
+                if DEBUG >= 1:
+                    print("  Size mismatch for %r, replacing..." % sorted_path)
 
             try:
                 with open(sorted_path, "wb") as f:
@@ -181,7 +184,8 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         elif os.stat(sorted_path).st_size == 0:
             download_list.append(image_key)
     if not download_list:
-        print(" Sequence %r already fully downloaded" % sequence_name)
+        if DEBUG >= 1:
+            print(" Sequence %r already fully downloaded" % sequence_name)
         return 0, 0
 
     already_downloaded = len(image_keys) - len(download_list)
@@ -269,15 +273,16 @@ def main(email, password, username, output_folder, start_date, end_date):
         sys.exit(-2)
     accumulated_stats = [0, 0]  # seq, img,
     for c, sequence in enumerate(reversed(user_sequences), 1):
-        print(
-            "Sequence %s_%s (%d/%d)"
-            % (
-                sequence["properties"]["captured_at"],
-                sequence["properties"]["created_at"],
-                c,
-                nb_sequences,
+        if DEBUG >= 1:
+            print(
+                "Sequence %s_%s (%d/%d)"
+                % (
+                    sequence["properties"]["captured_at"],
+                    sequence["properties"]["created_at"],
+                    c,
+                    nb_sequences,
+                )
             )
-        )
         stats = download_sequence(output_folder, mpy_token, sequence, username)
         add(accumulated_stats, stats)
     if DRY_RUN:
@@ -304,6 +309,7 @@ if __name__ == "__main__":
         help="Filter sequences that are captured before this date",
         metavar="YYYY-MM-DD",
     )
+    parser.add_argument( "--debug", metavar="0..2",  help="set global debug level")
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status and leave"
     )
@@ -311,6 +317,9 @@ if __name__ == "__main__":
 
     if args.dry_run:
         DRY_RUN = True
+
+    if args.debug:
+        DEBUG = int(args.debug)
 
     exit(
         main(
