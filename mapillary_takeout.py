@@ -283,7 +283,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         finally:
             pool.terminate()
             pool.join()
-    print(" Done downloading sequence %r" % sequence_name, end="\r", flush=True)
+    print(" Done downloading sequence %r" % sequence_name, flush=True)
     return 1, len(source_urls)
 
 
