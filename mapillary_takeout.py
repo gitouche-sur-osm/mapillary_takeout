@@ -40,6 +40,7 @@ SEQUENCE_DL_MAX_RETRIES = 32
 # 0: only import messages, like errors
 # 1: more verbose
 # 2: full verbose
+# 3: debug
 DEBUG = 0
 
 # connection timeout to AWS S3
@@ -107,7 +108,8 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
             )
         r.close()
         nb_seq = len(response)
-        print("Fetching %s sequences (%s images) ..." % (nb_seq, nb_images))
+        if DEBUG >= 1:
+            print("Fetching %s sequences (%s images) ..." % (nb_seq, nb_images))
     return (response, nb_seq)
 
 
@@ -150,11 +152,11 @@ def download_file(args):
     if r.status_code == requests.codes.ok:
         size = int(r.headers["content-length"])
         if os.path.isfile(sorted_path) and os.path.getsize(sorted_path) == size:
-            if DEBUG >= 2:
+            if DEBUG >= 3:
                 print("  Already downloaded as %r" % sorted_path)
         else:
             if os.path.isfile(sorted_path):
-                if DEBUG >= 1:
+                if DEBUG >= 2:
                     print("  Size mismatch for %r, replacing..." % sorted_path)
 
             try:
@@ -198,13 +200,14 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         elif os.stat(sorted_path).st_size == 0:
             download_list.append(image_key)
     if not download_list:
-        if DEBUG >= 1:
+        if DEBUG >= 2:
             print(" Sequence %r already fully downloaded" % sequence_name)
         return 0, 0
 
     already_downloaded = len(image_keys) - len(download_list)
     if already_downloaded:
-        print(" Already downloaded: %d/%d" % (already_downloaded, len(image_keys)))
+        if DEBUG >= 1:
+            print(" Already downloaded: %d/%d" % (already_downloaded, len(image_keys)))
 
     if DRY_RUN:
         return 1, len(download_list)
@@ -289,7 +292,7 @@ def main(email, password, username, output_folder, start_date, end_date):
         sys.exit(-2)
     accumulated_stats = [0, 0]  # seq, img,
     for c, sequence in enumerate(reversed(user_sequences), 1):
-        if DEBUG >= 1:
+        if DEBUG >= 2:
             print(
                 "Sequence %s_%s (%d/%d)"
                 % (
