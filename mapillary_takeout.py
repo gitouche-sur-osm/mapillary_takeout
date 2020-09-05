@@ -46,6 +46,7 @@ MODEL_URL = API_ENDPOINT + "/v3/model.json?client_id=" + CLIENT_ID
 AWS_EXPIRED = '<\?xml version="1\.0" encoding="UTF-8"\?>\\n<Error><Code>AccessDenied<\/Code><Message>Request has expired<\/Message>'
 
 DRY_RUN = False
+TIMEOUT=10
 DEBUG = 0
 
 
@@ -310,6 +311,7 @@ if __name__ == "__main__":
         metavar="YYYY-MM-DD",
     )
     parser.add_argument( "--debug", metavar="0..2",  help="set global debug level")
+    parser.add_argument( "--timeout", metavar="0..300",  help="set connection timeout")
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status and leave"
     )
@@ -320,6 +322,13 @@ if __name__ == "__main__":
 
     if args.debug:
         DEBUG = int(args.debug)
+
+    if args.timeout:
+        timeout = int(args.timeout)
+        if timeout > 0 and timeout <= 300:
+            TIMEOUT = timeout
+        else:
+            print ("timeout parameter is out of range 0..300: %s, ignored" % timeout)
 
     exit(
         main(
