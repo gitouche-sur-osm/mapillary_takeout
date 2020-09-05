@@ -27,9 +27,24 @@ NUM_THREADS = 10
 # mapillary_tools client_id
 CLIENT_ID = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo1YTM0NjRkM2EyZGU5MzBh"
 
-SEQUENCES_PER_PAGE = "100"  # Max from API is 1000, but timeouts
-REQUESTS_PER_CALL = 210  # 220 max
-SEQUENCE_DL_MAX_RETRIES = 3  # Number of retries for a sequence
+# Max from API is 1000, but timeouts
+SEQUENCES_PER_PAGE = "100"
+
+# 220 max
+REQUESTS_PER_CALL = 210
+
+# Number of retries for a sequence
+SEQUENCE_DL_MAX_RETRIES = 16
+
+# verbose level 0..2
+# 0: only import messages, like errors
+# 1: more verbose
+# 2: full verbose
+DEBUG = 0
+
+# connection timeout to AWS S3
+# this will raise an exception for a download, and we retry to download the image later
+TIMEOUT=10
 
 API_ENDPOINT = "https://a.mapillary.com"
 
@@ -46,8 +61,6 @@ MODEL_URL = API_ENDPOINT + "/v3/model.json?client_id=" + CLIENT_ID
 AWS_EXPIRED = '<\?xml version="1\.0" encoding="UTF-8"\?>\\n<Error><Code>AccessDenied<\/Code><Message>Request has expired<\/Message>'
 
 DRY_RUN = False
-TIMEOUT=10
-DEBUG = 0
 
 
 def get_mpy_auth(email, password):
@@ -205,6 +218,8 @@ def download_sequence(output_folder, mpy_token, sequence, username):
             update_urls = False
 
         sequence_dl_retries += 1
+        
+        print("sequence download retries counter: %r" % sequence_dl_retries)
 
         if len(download_list) > len(source_urls):
             print(
@@ -313,6 +328,7 @@ if __name__ == "__main__":
     parser.add_argument( "--debug", metavar="0..2",  help="set global debug level")
     parser.add_argument( "--timeout", metavar="0..300",  help="set connection timeout")
     parser.add_argument( "--threads", metavar="1..100",  help="number of threads")
+    parser.add_argument( "--retries", metavar="1..10",  help="sequence max retries")
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status and leave"
     )
@@ -337,6 +353,13 @@ if __name__ == "__main__":
             NUM_THREADS = threads
         else:
             print ("timeout parameter is out of range 0..100: %s, ignored" % threads)
+            
+    if args.retries:
+        retries = int(args.retries)
+        if retries > 0 and retries <= 100:
+            SEQUENCE_DL_MAX_RETRIES = retries
+        else:
+            print ("retries parameter is out of range 0..100: %s, ignored" % retries)
 
 
     exit(
