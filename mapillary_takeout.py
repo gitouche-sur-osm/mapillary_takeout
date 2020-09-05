@@ -10,18 +10,9 @@ import sys
 from multiprocessing.pool import ThreadPool
 
 
-class SSLException(Exception):
-    pass
-
-
-class DownloadException(Exception):
-    pass
-
-
-class URLExpireException(Exception):
-    pass
-
-
+##################################################################################################
+# config
+#
 NUM_THREADS = 10
 
 # mapillary_tools client_id
@@ -64,6 +55,22 @@ AWS_EXPIRED = '<\?xml version="1\.0" encoding="UTF-8"\?>\\n<Error><Code>AccessDe
 DRY_RUN = False
 
 
+##################################################################################################
+# exception classes
+#
+class SSLException(Exception):
+    pass
+
+class DownloadException(Exception):
+    pass
+
+class URLExpireException(Exception):
+    pass
+
+
+##################################################################################################
+# functions
+#
 def get_mpy_auth(email, password):
     # Returns mapillary token
     payload = {"email": email, "password": password}
@@ -145,10 +152,11 @@ def download_file(args):
     except requests.exceptions.SSLError:
         raise SSLException("SSL error downloading %r, retrying later" % image_key)
     except:
-        raise DownloadException(
-            "Error downloading %r, retrying later. Info %r"
-            % (image_key, sys.exc_info()[0],)
-        )
+        if DEBUG >= 1:
+            raise DownloadException("Error downloading %r, retrying later. Info %r" % (image_key, sys.exc_info()[0],) )
+        else:
+            raise DownloadException("")
+            
     if r.status_code == requests.codes.ok:
         size = int(r.headers["content-length"])
         if os.path.isfile(sorted_path) and os.path.getsize(sorted_path) == size:
@@ -163,8 +171,11 @@ def download_file(args):
                 with open(sorted_path, "wb") as f:
                     f.write(r.content)
             except:
-                raise DownloadException(
-                    "Error downloading image %r, retrying later. Info %r" % (image_key, sys.exc_info()[0],))
+                if DEBUG >= 1:
+                     raise DownloadException("Error downloading image %r, retrying later. Info %r" % (image_key, sys.exc_info()[0],))
+                else:
+                     raise DownloadException("")
+                    
 
         return image_key
     elif r.status_code == 403 and re.match(AWS_EXPIRED, r.text):
@@ -221,8 +232,10 @@ def download_sequence(output_folder, mpy_token, sequence, username):
             update_urls = False
 
         sequence_dl_retries += 1
-        
-        print("sequence download retries: %s/%s" % (sequence_dl_retries, SEQUENCE_DL_MAX_RETRIES))
+
+        # show only on a retry
+        if sequence_dl_retries > 1 and DEBUG >= 1:
+            print("sequence download retries: %s/%s" % (sequence_dl_retries, SEQUENCE_DL_MAX_RETRIES))
 
         if len(download_list) > len(source_urls):
             print(
