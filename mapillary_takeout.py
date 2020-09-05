@@ -187,7 +187,7 @@ def download_file(args):
     return False
 
 
-def download_sequence(output_folder, mpy_token, sequence, username):
+def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequences):
     sequence_name = (
         sequence["properties"]["captured_at"]
         + "_"
@@ -283,7 +283,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         finally:
             pool.terminate()
             pool.join()
-    print(" Done downloading sequence %r" % sequence_name, flush=True)
+    print(" Done downloading sequence %r (%d/%d)" % (sequence_name, c, nb_sequences), flush=True)
     return 1, len(source_urls)
 
 
@@ -315,7 +315,7 @@ def main(email, password, username, output_folder, start_date, end_date):
                     nb_sequences,
                 )
             )
-        stats = download_sequence(output_folder, mpy_token, sequence, username)
+        stats = download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequences )
         add(accumulated_stats, stats)
     if DRY_RUN:
         print(
