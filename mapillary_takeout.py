@@ -267,7 +267,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
                 if image_key:
                     download_list.remove(image_key)
                 print(
-                    "  Downloading image #%03d/%03d" % (i, len(pool_args)),
+                    "  Downloading images #%03d out of %03d round: %d" % (i, len(pool_args), sequence_dl_retries),
                     end="\r",
                     flush=True,
                 )
@@ -283,7 +283,7 @@ def download_sequence(output_folder, mpy_token, sequence, username):
         finally:
             pool.terminate()
             pool.join()
-    print(" Done downloading sequence %r" % sequence_name)
+    print(" Done downloading sequence %r" % sequence_name, end="\r", flush=True)
     return 1, len(source_urls)
 
 
