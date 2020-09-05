@@ -25,7 +25,10 @@ SEQUENCES_PER_PAGE = "100"
 REQUESTS_PER_CALL = 210
 
 # Number of retries for a sequence
-SEQUENCE_DL_MAX_RETRIES = 32
+# Normally a sequence is limited to 1000 images, but this is no longer true for the iPhone
+# Given the low reliability of AWS S3 (<0.99) we need to set an insanse high retry value
+# to download 3k of images
+SEQUENCE_DL_MAX_RETRIES = 128
 
 # verbose level 0..2
 # 0: only import messages, like errors
@@ -53,6 +56,9 @@ MODEL_URL = API_ENDPOINT + "/v3/model.json?client_id=" + CLIENT_ID
 AWS_EXPIRED = '<\?xml version="1\.0" encoding="UTF-8"\?>\\n<Error><Code>AccessDenied<\/Code><Message>Request has expired<\/Message>'
 
 DRY_RUN = False
+
+# count downloads per sequence
+SEQUENCE_SIZE = 0
 
 
 ##################################################################################################
@@ -147,6 +153,8 @@ def get_source_urls(download_list, mpy_token, username):
 
 def download_file(args):
     image_key, sorted_path, source_url = args
+    global SEQUENCE_SIZE
+    
     try:
         r = requests.get(source_url, stream=True, timeout=10)
     except requests.exceptions.SSLError:
@@ -175,7 +183,9 @@ def download_file(args):
                      raise DownloadException("Error downloading image %r, retrying later. Info %r" % (image_key, sys.exc_info()[0],))
                 else:
                      raise DownloadException("")
-                    
+
+            # downloaded MB per sequence            
+            SEQUENCE_SIZE += size
 
         return image_key
     elif r.status_code == 403 and re.match(AWS_EXPIRED, r.text):
@@ -188,6 +198,7 @@ def download_file(args):
 
 
 def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequences):
+    global SEQUENCE_SIZE
     sequence_name = (
         sequence["properties"]["captured_at"]
         + "_"
@@ -283,7 +294,9 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
         finally:
             pool.terminate()
             pool.join()
-    print(" Done downloading sequence %r (%d/%d)" % (sequence_name, c, nb_sequences), flush=True)
+    print(" Done sequence %r (%d/%d) %3.1f MB" % (sequence_name, c, nb_sequences, SEQUENCE_SIZE/1024/1024), flush=True)
+    SEQUENCE_SIZE = 0
+                    
     return 1, len(source_urls)
 
 
