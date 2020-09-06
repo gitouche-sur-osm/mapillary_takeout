@@ -24,7 +24,6 @@ cd mapillary_takeout-master
 ```
 #### Run the code
 ```
-chmod +x mapillary_takeout.py
 ./mapillary_takeout.py <email> <password> <username> <output_folder>
 ```
 Example
