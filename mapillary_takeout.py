@@ -384,24 +384,40 @@ if __name__ == "__main__":
         DRY_RUN = True
 
     if args.debug:
-        DEBUG = int(args.debug)
+        try:
+            DEBUG = int(args.debug)
+        except:
+            print("illegal value for debug: %s" % args.debug)
+            sys.exit(-1)
 
     if args.timeout:
-        timeout = int(args.timeout)
+        try:
+            timeout = float(args.timeout)
+        except:
+            print("illegal value for timeout: %s" % args.timeout)
+            sys.exit(-1)
         if timeout > 0 and timeout <= 300:
             DOWNLOAD_FILE_TIMEOUT = timeout
         else:
             print ("timeout parameter is out of range 0..300: %s, ignored" % timeout)
 
     if args.threads:
-        threads = int(args.threads)
+        try:
+            threads = int(args.threads)
+        except:
+            print("illegal value for threads: %s" % args.threads)
+            sys.exit(-1)
         if threads > 0 and threads <= 100:
             NUM_THREADS = threads
         else:
             print ("timeout parameter is out of range 0..100: %s, ignored" % threads)
             
     if args.retries:
-        retries = int(args.retries)
+        try:
+            retries = int(args.retries)
+        except:
+            print("illegal value for retries: %s" % args.retries)
+            sys.exit(-1)
         if retries > 0 and retries <= 512:
             SEQUENCE_DL_MAX_RETRIES = retries
         else:
