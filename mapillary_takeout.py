@@ -371,8 +371,8 @@ if __name__ == "__main__":
         help="Filter sequences that are captured before this date",
         metavar="YYYY-MM-DD",
     )
-    parser.add_argument( "--debug", metavar="0..2",  help="set global debug level")
-    parser.add_argument( "--timeout", metavar="0..300",  help="set connection timeout")
+    parser.add_argument( "--debug", metavar="0..3",  help="set global debug level")
+    parser.add_argument( "--timeout", metavar="1..300",  help="set connection timeout")
     parser.add_argument( "--threads", metavar="1..100",  help="number of threads")
     parser.add_argument( "--retries", metavar="1..512",  help="sequence max retries")
     parser.add_argument(
@@ -385,10 +385,14 @@ if __name__ == "__main__":
 
     if args.debug:
         try:
-            DEBUG = int(args.debug)
+            debug = int(args.debug)
         except:
             print("illegal value for debug: %s" % args.debug)
             sys.exit(-1)
+        if debug >= 0 and debug <= 3:
+            DEBUG = debug
+        else:
+            print ("debug parameter is out of range 0..3: %s, ignored" % debug)
 
     if args.timeout:
         try:
