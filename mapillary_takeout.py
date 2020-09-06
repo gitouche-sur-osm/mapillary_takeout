@@ -107,7 +107,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
         SEQUENCES_URL,
         headers=headers,
         params={"usernames": username, "start_time": start_date, "end_time": end_date},
-        timeout=8
+        timeout=30
     )
     for feature in r.json()["features"]:
         response.append(feature)
@@ -115,7 +115,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
     r.close()
     nb_seq = len(response)
     while "next" in r.links:
-        r = requests.get(r.links["next"]["url"], headers=headers, timeout=8)
+        r = requests.get(r.links["next"]["url"], headers=headers, timeout=30)
         for feature in r.json()["features"]:
             response.append(feature)
             nb_images += len(
@@ -143,7 +143,7 @@ def get_source_urls(download_list, mpy_token, username):
             "method": "get",
         }
         headers = {"Authorization": "Bearer " + mpy_token}
-        r = requests.get(MODEL_URL, headers=headers, params=params, timeout=8)
+        r = requests.get(MODEL_URL, headers=headers, params=params, timeout=30)
         data = r.json()
         if "jsonGraph" in data:
             for image_key, image in data["jsonGraph"]["imageByKey"].items():
@@ -165,7 +165,7 @@ def download_file(args):
         if DEBUG >= 1:
             raise DownloadException("Error downloading %r, retrying later. Info %r" % (image_key, sys.exc_info()[0],) )
         else:
-            raise DownloadException("")
+            return False
             
     if r.status_code == requests.codes.ok:
         size = int(r.headers["content-length"])
@@ -184,7 +184,7 @@ def download_file(args):
                 if DEBUG >= 1:
                      raise DownloadException("Error downloading image %r, retrying later. Info %r" % (image_key, sys.exc_info()[0],))
                 else:
-                     raise DownloadException("")
+                    return False
 
             # downloaded MB per sequence            
             DOWNLOAD_SEQUENCE_SIZE += size
