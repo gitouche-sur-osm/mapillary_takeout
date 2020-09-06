@@ -322,18 +322,20 @@ def main(email, password, username, output_folder, start_date, end_date):
         sys.exit(-2)
     accumulated_stats = [0, 0]  # seq, img,
     for c, sequence in enumerate(reversed(user_sequences), 1):
+        stats = download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequences )
+        add(accumulated_stats, stats)
+        
         if DEBUG >= 2:
             print(
-                "Sequence %s_%s (%d/%d)"
+                "Sequence %s_%s (%d/%d) contains %d images"
                 % (
                     sequence["properties"]["captured_at"],
                     sequence["properties"]["created_at"],
                     c,
                     nb_sequences,
+                    stats[1]
                 )
             )
-        stats = download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequences )
-        add(accumulated_stats, stats)
     if DRY_RUN:
         print(
             "%s images in %s sequences would have been downloaded without the dry run"
