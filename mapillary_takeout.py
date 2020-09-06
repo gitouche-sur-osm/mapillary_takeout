@@ -58,7 +58,8 @@ AWS_EXPIRED = '<\?xml version="1\.0" encoding="UTF-8"\?>\\n<Error><Code>AccessDe
 DRY_RUN = False
 
 # count downloads per sequence
-SEQUENCE_SIZE = 0
+DOWNLOAD_SEQUENCE_SIZE = 0
+DOWNLOAD_TOTAL_SIZE = 0
 
 
 ##################################################################################################
@@ -153,7 +154,7 @@ def get_source_urls(download_list, mpy_token, username):
 
 def download_file(args):
     image_key, sorted_path, source_url = args
-    global SEQUENCE_SIZE
+    global DOWNLOAD_SEQUENCE_SIZE
     
     try:
         r = requests.get(source_url, stream=True, timeout=10)
@@ -185,7 +186,7 @@ def download_file(args):
                      raise DownloadException("")
 
             # downloaded MB per sequence            
-            SEQUENCE_SIZE += size
+            DOWNLOAD_SEQUENCE_SIZE += size
 
         return image_key
     elif r.status_code == 403 and re.match(AWS_EXPIRED, r.text):
@@ -198,7 +199,9 @@ def download_file(args):
 
 
 def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequences):
-    global SEQUENCE_SIZE
+    global DOWNLOAD_SEQUENCE_SIZE
+    global DOWNLOAD_TOTAL_SIZE
+    
     sequence_name = (
         sequence["properties"]["captured_at"]
         + "_"
@@ -294,8 +297,9 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
         finally:
             pool.terminate()
             pool.join()
-    print(" Done sequence %r (%d/%d) %3.1f MB" % (sequence_name, c, nb_sequences, SEQUENCE_SIZE/1024/1024), flush=True)
-    SEQUENCE_SIZE = 0
+    print(" Done sequence %r (%d/%d) %3.1f MB" % (sequence_name, c, nb_sequences, DOWNLOAD_SEQUENCE_SIZE/1024/1024), flush=True)
+    DOWNLOAD_TOTAL_SIZE += DOWNLOAD_SEQUENCE_SIZE
+    DOWNLOAD_SEQUENCE_SIZE = 0
                     
     return 1, len(source_urls)
 
@@ -335,6 +339,12 @@ def main(email, password, username, output_folder, start_date, end_date):
             "%s images in %s sequences would have been downloaded without the dry run"
             % (accumulated_stats[1], accumulated_stats[0],)
         )
+    else:
+        global DOWNLOAD_TOTAL_SIZE
+        print("Total images: %s total download size: %2.1f av. image size: %2.1f" %
+            (accumulated_stats[1],
+             DOWNLOAD_TOTAL_SIZE/1024/1024,
+             DOWNLOAD_TOTAL_SIZE/accumulated_stats[1]/1024/1024))
     return 0
 
 
