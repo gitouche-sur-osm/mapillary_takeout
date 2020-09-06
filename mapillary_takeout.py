@@ -341,10 +341,14 @@ def main(email, password, username, output_folder, start_date, end_date):
         )
     else:
         global DOWNLOAD_TOTAL_SIZE
-        print("Total images: %s total download size: %2.1f av. image size: %2.1f" %
-            (accumulated_stats[1],
-             DOWNLOAD_TOTAL_SIZE/1024/1024,
-             DOWNLOAD_TOTAL_SIZE/accumulated_stats[1]/1024/1024))
+        if accumulated_stats[1] > 0:
+            print("Total images: %s total download size: %2.1f GB average image size: %2.1f MB" %
+                (accumulated_stats[1],
+                DOWNLOAD_TOTAL_SIZE/1024/1024/1024,
+                DOWNLOAD_TOTAL_SIZE/accumulated_stats[1]/1024/1024))
+        else:
+            print("Nothing to download")
+            
     return 0
 
 
