@@ -39,7 +39,7 @@ DEBUG = 0
 
 # connection timeout to AWS S3
 # this will raise an exception for a download, and we retry to download the image later
-TIMEOUT=5
+DOWNLOAD_FILE_TIMEOUT=5
 
 API_ENDPOINT = "https://a.mapillary.com"
 
@@ -107,6 +107,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
         SEQUENCES_URL,
         headers=headers,
         params={"usernames": username, "start_time": start_date, "end_time": end_date},
+        timeout=8
     )
     for feature in r.json()["features"]:
         response.append(feature)
@@ -114,7 +115,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
     r.close()
     nb_seq = len(response)
     while "next" in r.links:
-        r = requests.get(r.links["next"]["url"], headers=headers)
+        r = requests.get(r.links["next"]["url"], headers=headers, timeout=8)
         for feature in r.json()["features"]:
             response.append(feature)
             nb_images += len(
@@ -142,7 +143,7 @@ def get_source_urls(download_list, mpy_token, username):
             "method": "get",
         }
         headers = {"Authorization": "Bearer " + mpy_token}
-        r = requests.get(MODEL_URL, headers=headers, params=params)
+        r = requests.get(MODEL_URL, headers=headers, params=params, timeout=8)
         data = r.json()
         if "jsonGraph" in data:
             for image_key, image in data["jsonGraph"]["imageByKey"].items():
@@ -157,7 +158,7 @@ def download_file(args):
     global DOWNLOAD_SEQUENCE_SIZE
     
     try:
-        r = requests.get(source_url, stream=True, timeout=10)
+        r = requests.get(source_url, stream=True, timeout=DOWNLOAD_FILE_TIMEOUT)
     except requests.exceptions.SSLError:
         raise SSLException("SSL error downloading %r, retrying later" % image_key)
     except:
@@ -388,7 +389,7 @@ if __name__ == "__main__":
     if args.timeout:
         timeout = int(args.timeout)
         if timeout > 0 and timeout <= 300:
-            TIMEOUT = timeout
+            DOWNLOAD_FILE_TIMEOUT = timeout
         else:
             print ("timeout parameter is out of range 0..300: %s, ignored" % timeout)
 
@@ -407,7 +408,7 @@ if __name__ == "__main__":
             print ("retries parameter is out of range 0..512: %s, ignored" % retries)
 
     if DEBUG > 0:
-        print("number of threads: %d, timeout: %d seconds, retries: %d, debug: %d" % (NUM_THREADS, TIMEOUT,  SEQUENCE_DL_MAX_RETRIES, DEBUG))
+        print("number of threads: %d, timeout: %d seconds, retries: %d, debug: %d" % (NUM_THREADS, DOWNLOAD_FILE_TIMEOUT, SEQUENCE_DL_MAX_RETRIES, DEBUG))
         
     exit(
         main(
