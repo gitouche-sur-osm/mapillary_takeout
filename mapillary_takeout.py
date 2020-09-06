@@ -406,7 +406,9 @@ if __name__ == "__main__":
         else:
             print ("retries parameter is out of range 0..512: %s, ignored" % retries)
 
-
+    if DEBUG > 0:
+        print("number of threads: %d, timeout: %d seconds, retries: %d, debug: %d" % (NUM_THREADS, TIMEOUT,  SEQUENCE_DL_MAX_RETRIES, DEBUG))
+        
     exit(
         main(
             args.email,
