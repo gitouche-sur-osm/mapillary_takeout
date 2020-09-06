@@ -37,7 +37,7 @@ You should quote your fields if they contain special characters :
 ## Full usage
 ```
 usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD] [--end-date YYYY-MM-DD]
-                            [--debug 0..2] [--timeout 0..300] [--threads 1..100] [--retries 1..512] [-D]
+                            [--debug 0..3] [--timeout 0..300] [--threads 1..100] [--retries 1..512] [-D]
                             email password username output_folder
 
 Download your images from Mapillary
