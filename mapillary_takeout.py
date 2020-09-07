@@ -390,7 +390,7 @@ if __name__ == "__main__":
     parser.add_argument( "--threads", metavar="1..128",  help="number of threads")
     parser.add_argument( "--retries", metavar="1..512",  help="sequence max retries")
     parser.add_argument(
-        "-D", "--dry-run", action="store_true", help="Check sequences status and leave"
+        "-D", "--dry-run", action="store_true", help="Check sequences status, display estimates and leave"
     )
     args = parser.parse_args()
 

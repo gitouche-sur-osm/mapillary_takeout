@@ -58,7 +58,7 @@ optional arguments:
   --timeout 0..300      set connection timeout
   --threads 1..100      number of threads
   --retries 1..512      sequence max retries
-  -D, --dry-run         Check sequences status and leave
+  -D, --dry-run         Check sequences status, display estimates and leave
 ```							
 
 ## Friendly projects
