@@ -387,7 +387,7 @@ if __name__ == "__main__":
     )
     parser.add_argument( "--debug", metavar="0..3",  help="set global debug level")
     parser.add_argument( "--timeout", metavar="1..300",  help="set connection timeout")
-    parser.add_argument( "--threads", metavar="1..100",  help="number of threads")
+    parser.add_argument( "--threads", metavar="1..128",  help="number of threads")
     parser.add_argument( "--retries", metavar="1..512",  help="sequence max retries")
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status and leave"
@@ -425,10 +425,10 @@ if __name__ == "__main__":
         except:
             print("illegal value for threads: %s" % args.threads)
             sys.exit(-1)
-        if threads > 0 and threads <= 100:
+        if threads > 0 and threads <= 128:
             NUM_THREADS = threads
         else:
-            print ("timeout parameter is out of range 0..100: %s, ignored" % threads)
+            print ("timeout parameter is out of range 0..128: %s, ignored" % threads)
             
     if args.retries:
         try:
@@ -442,7 +442,7 @@ if __name__ == "__main__":
             print ("retries parameter is out of range 0..512: %s, ignored" % retries)
 
     if DEBUG > 0:
-        print("number of threads: %d, timeout: %2.1f seconds, retries: %d, debug: %d" % (NUM_THREADS, DOWNLOAD_FILE_TIMEOUT, SEQUENCE_DL_MAX_RETRIES, DEBUG))
+        print("number of threads: %d, connection timeout: %2.1f sec., retries: %d, debug: %d" % (NUM_THREADS, DOWNLOAD_FILE_TIMEOUT, SEQUENCE_DL_MAX_RETRIES, DEBUG))
         
     exit(
         main(
