@@ -37,7 +37,7 @@ You should quote your fields if they contain special characters :
 ## Full usage
 ```
 usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD] [--end-date YYYY-MM-DD]
-                            [--debug 0..3] [--timeout 0..300] [--threads 1..100] [--retries 1..512] [-D]
+                            [--debug 0..3] [--timeout 1..300] [--threads 1..128] [--retries 1..512] [-D]
                             email password username output_folder
 
 Download your images from Mapillary
@@ -55,8 +55,8 @@ optional arguments:
   --end-date YYYY-MM-DD
 			Filter sequences that are captured before this date
   --debug 0..2          set global debug level
-  --timeout 0..300      set connection timeout
-  --threads 1..100      number of threads
+  --timeout 1..300      set connection timeout
+  --threads 1..128      number of threads
   --retries 1..512      sequence max retries
   -D, --dry-run         Check sequences status, display estimates and leave
 ```							
