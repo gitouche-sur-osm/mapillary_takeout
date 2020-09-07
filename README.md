@@ -55,9 +55,9 @@ optional arguments:
   --end-date YYYY-MM-DD
 			Filter sequences that are captured before this date
   --debug 0..2          set global debug level
-  --timeout 1..300      set connection timeout
+  --timeout 1..300      set connection/read timeout in seconds
   --threads 1..128      number of threads
-  --retries 1..512      sequence max retries
+  --retries 1..512      sequence max. retries
   -D, --dry-run         Check sequences status, display estimates and leave
 ```							
 

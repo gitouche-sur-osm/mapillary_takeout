@@ -386,9 +386,9 @@ if __name__ == "__main__":
         metavar="YYYY-MM-DD",
     )
     parser.add_argument( "--debug", metavar="0..3",  help="set global debug level")
-    parser.add_argument( "--timeout", metavar="1..300",  help="set connection timeout")
+    parser.add_argument( "--timeout", metavar="1..300",  help="set connection/read timeout in seconds")
     parser.add_argument( "--threads", metavar="1..128",  help="number of threads")
-    parser.add_argument( "--retries", metavar="1..512",  help="sequence max retries")
+    parser.add_argument( "--retries", metavar="1..512",  help="sequence max. retries")
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status, display estimates and leave"
     )
