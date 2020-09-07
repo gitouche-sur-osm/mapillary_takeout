@@ -41,6 +41,9 @@ DEBUG = 0
 # this will raise an exception for a download, and we retry to download the image later
 DOWNLOAD_FILE_TIMEOUT=5
 
+# timeout for login and sequences
+META_TIMEOUT=60
+
 API_ENDPOINT = "https://a.mapillary.com"
 
 LOGIN_URL = API_ENDPOINT + "/v2/ua/login?client_id=" + CLIENT_ID
@@ -110,7 +113,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
         SEQUENCES_URL,
         headers=headers,
         params={"usernames": username, "start_time": start_date, "end_time": end_date},
-        timeout=30
+        timeout=META_TIMEOUT
     )
     for feature in r.json()["features"]:
         response.append(feature)
@@ -118,7 +121,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
     r.close()
     nb_seq = len(response)
     while "next" in r.links:
-        r = requests.get(r.links["next"]["url"], headers=headers, timeout=30)
+        r = requests.get(r.links["next"]["url"], headers=headers, timeout=META_TIMEOUT)
         for feature in r.json()["features"]:
             response.append(feature)
             nb_images += len(
@@ -146,7 +149,7 @@ def get_source_urls(download_list, mpy_token, username):
             "method": "get",
         }
         headers = {"Authorization": "Bearer " + mpy_token}
-        r = requests.get(MODEL_URL, headers=headers, params=params, timeout=30)
+        r = requests.get(MODEL_URL, headers=headers, params=params, timeout=META_TIMEOUT)
         data = r.json()
         if "jsonGraph" in data:
             for image_key, image in data["jsonGraph"]["imageByKey"].items():
