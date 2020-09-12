@@ -6,6 +6,7 @@ import os
 import re
 import requests
 import sys
+import time
 
 from multiprocessing.pool import ThreadPool
 
@@ -141,6 +142,7 @@ def get_source_urls(download_list, mpy_token, username):
         download_list[x : x + REQUESTS_PER_CALL]
         for x in range(0, len(download_list), REQUESTS_PER_CALL)
     ]
+    
     for chunk in chunks:
         params = {
             "paths": json.dumps(
@@ -159,6 +161,7 @@ def get_source_urls(download_list, mpy_token, username):
             data = r.json()
         except:
             print("Error parsing JSON model URL response, ignore sequence")
+            r.close()
             continue
             
         if "jsonGraph" in data:
@@ -166,6 +169,7 @@ def get_source_urls(download_list, mpy_token, username):
                 if "value" in image["original_url"]:
                     source_urls[image_key] = image["original_url"]["value"]
         r.close()
+       
     return source_urls
 
 
@@ -273,6 +277,13 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
                 " Missing %d/%d images : will refresh and retry later"
                 % (len(download_list) - len(source_urls), len(download_list))
             )
+            
+            # if we get nothing wait a little bit
+            if len(download_list) - len(source_urls) == len(download_list):
+                if DEBUG >= 1:
+                    print(" Wait a second due long missing source list")
+                time.sleep(2)
+                
             sequence_dl_retries -= 1
             # refresh list after this pass
             update_urls = True
