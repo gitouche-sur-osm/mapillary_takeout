@@ -149,8 +149,17 @@ def get_source_urls(download_list, mpy_token, username):
             "method": "get",
         }
         headers = {"Authorization": "Bearer " + mpy_token}
-        r = requests.get(MODEL_URL, headers=headers, params=params, timeout=META_TIMEOUT)
-        data = r.json()
+        
+        try:
+            r = requests.get(MODEL_URL, headers=headers, params=params, timeout=META_TIMEOUT)
+        except:
+            raise DownloadException("Error downloading model URL %r" % MODEL_URL)
+                                                                                             
+        try:                                                                                     
+            data = r.json()
+        except:
+            raise DownloadException("Error parsing JSON model URL response")
+            
         if "jsonGraph" in data:
             for image_key, image in data["jsonGraph"]["imageByKey"].items():
                 if "value" in image["original_url"]:
