@@ -266,9 +266,6 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
     if DRY_RUN:
         return 1, len(download_list)
 
-    if DEBUG >= 3:
-        print(" Start sequence download")
-        
     # Third pass, download if entry is found in dict
     sequence_dl_retries = 0
     update_urls = True
