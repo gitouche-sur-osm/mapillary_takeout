@@ -146,6 +146,7 @@ def get_source_urls(download_list, mpy_token, username):
         for x in range(0, len(download_list), REQUESTS_PER_CALL)
     ]
     
+    counter = 0
     for chunk in chunks:
         params = {
             "paths": json.dumps(
@@ -156,8 +157,9 @@ def get_source_urls(download_list, mpy_token, username):
         headers = {"Authorization": "Bearer " + mpy_token}
         
         try:
+            counter += len(chunk)
             if DEBUG >= 3:
-                print(" Fetch model URLs in chunks: %d" % len(chunk))
+                print(" Fetch model URLs in chunks: (%d/%d)" % (counter, len(download_list)))
             r = requests.get(MODEL_URL, headers=headers, params=params, timeout=META_TIMEOUT)
         except:
             raise DownloadException("Error downloading model URL %r, ignore sequence" % MODEL_URL)
