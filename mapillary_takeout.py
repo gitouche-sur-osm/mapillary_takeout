@@ -157,7 +157,7 @@ def get_source_urls(download_list, mpy_token, username):
         
         try:
             if DEBUG >= 3:
-                print(" Fetch model URL in chunks")
+                print(" Fetch model URLs in chunks: %d" % len(chunk))
             r = requests.get(MODEL_URL, headers=headers, params=params, timeout=META_TIMEOUT)
         except:
             raise DownloadException("Error downloading model URL %r, ignore sequence" % MODEL_URL)
