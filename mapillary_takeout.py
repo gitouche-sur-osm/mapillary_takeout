@@ -136,6 +136,9 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
 
 
 def get_source_urls(download_list, mpy_token, username):
+    if DEBUG >= 2:
+        print(" Start get_source_urls()")
+        
     # Fetches "unprocessed original" images URL and returns them in a dict
     source_urls = {}
     chunks = [
@@ -153,6 +156,8 @@ def get_source_urls(download_list, mpy_token, username):
         headers = {"Authorization": "Bearer " + mpy_token}
         
         try:
+            if DEBUG >= 3:
+                print(" Fetch model URL in chunks")
             r = requests.get(MODEL_URL, headers=headers, params=params, timeout=META_TIMEOUT)
         except:
             raise DownloadException("Error downloading model URL %r, ignore sequence" % MODEL_URL)
@@ -223,6 +228,9 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
     global _DOWNLOAD_SEQUENCE_SIZE
     global _DOWNLOAD_TOTAL_SIZE
     
+    if DEBUG >= 3:
+        print(" Prepare sequence download")
+        
     sequence_name = (
         sequence["properties"]["captured_at"]
         + "_"
@@ -258,6 +266,9 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
     if DRY_RUN:
         return 1, len(download_list)
 
+    if DEBUG >= 3:
+        print(" Start sequence download")
+        
     # Third pass, download if entry is found in dict
     sequence_dl_retries = 0
     update_urls = True
@@ -304,6 +315,9 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
                     source_url = source_urls[image_key]
                     pool_args.append((image_key, sorted_path, source_url))
 
+        if DEBUG >= 3:
+            print(" Filling download pool done")
+        
         try:
             for i, image_key in enumerate(pool.imap(download_file, pool_args), 1):
                 if image_key:
