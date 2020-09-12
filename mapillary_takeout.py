@@ -153,12 +153,13 @@ def get_source_urls(download_list, mpy_token, username):
         try:
             r = requests.get(MODEL_URL, headers=headers, params=params, timeout=META_TIMEOUT)
         except:
-            raise DownloadException("Error downloading model URL %r" % MODEL_URL)
+            raise DownloadException("Error downloading model URL %r, ignore sequence" % MODEL_URL)
                                                                                              
         try:                                                                                     
             data = r.json()
         except:
-            raise DownloadException("Error parsing JSON model URL response")
+            print("Error parsing JSON model URL response, ignore sequence")
+            continue
             
         if "jsonGraph" in data:
             for image_key, image in data["jsonGraph"]["imageByKey"].items():
