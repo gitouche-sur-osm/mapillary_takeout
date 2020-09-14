@@ -110,19 +110,28 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
     nb_images = 0
     headers = {"Authorization": "Bearer " + mpy_token}
 
-    r = requests.get(
-        SEQUENCES_URL,
-        headers=headers,
-        params={"usernames": username, "start_time": start_date, "end_time": end_date},
-        timeout=META_TIMEOUT
-    )
+    try:
+        r = requests.get(
+            SEQUENCES_URL,
+            headers=headers,
+            params={"usernames": username, "start_time": start_date, "end_time": end_date},
+            timeout=META_TIMEOUT
+        )
+    except:
+        raise DownloadException("Error downloading sequence URL %r" % SEQUENCES_URL)
+
     for feature in r.json()["features"]:
         response.append(feature)
         nb_images += len(feature["properties"]["coordinateProperties"]["image_keys"])
     r.close()
     nb_seq = len(response)
     while "next" in r.links:
-        r = requests.get(r.links["next"]["url"], headers=headers, timeout=META_TIMEOUT)
+        try:
+            r = requests.get(r.links["next"]["url"], headers=headers, timeout=META_TIMEOUT)
+        except:
+            print("Error downloading next URL %r" % r.links["next"]["url"])
+            continue
+
         for feature in r.json()["features"]:
             response.append(feature)
             nb_images += len(
