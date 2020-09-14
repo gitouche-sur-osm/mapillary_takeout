@@ -430,6 +430,7 @@ if __name__ == "__main__":
     )
     parser.add_argument( "--debug", metavar="0..3",  help="set global debug level")
     parser.add_argument( "--timeout", metavar="1..300",  help="set connection/read timeout in seconds")
+    parser.add_argument( "--timeout-meta", metavar="1..300",  help="set connection/read timeout for meta requests in seconds")
     parser.add_argument( "--threads", metavar="1..128",  help="number of threads")
     parser.add_argument( "--retries", metavar="1..512",  help="sequence max. retries")
     parser.add_argument(
@@ -461,6 +462,17 @@ if __name__ == "__main__":
             DOWNLOAD_FILE_TIMEOUT = timeout
         else:
             print ("timeout parameter is out of range 0..300: %s, ignored" % timeout)
+
+    if args.timeout_meta:
+        try:
+            timeout_meta = float(args.timeout_meta)
+        except:
+            print("illegal value for timeout: %s" % args.timeout_meta)
+            sys.exit(-1)
+        if timeout_meta > 0 and timeout_meta <= 300:
+            META_TIMEOUT = timeout_meta
+        else:
+            print ("timeout meta parameter is out of range 0..300: %s, ignored" % timeout_meta)
 
     if args.threads:
         try:
