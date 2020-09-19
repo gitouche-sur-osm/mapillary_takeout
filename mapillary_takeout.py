@@ -120,6 +120,12 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
     except:
         raise DownloadException("Error downloading sequence URL %r" % SEQUENCES_URL)
 
+    try:
+        r.json()
+    except:
+        raise DownloadException("Error parsing json response, give up")
+
+
     for feature in r.json()["features"]:
         response.append(feature)
         nb_images += len(feature["properties"]["coordinateProperties"]["image_keys"])
