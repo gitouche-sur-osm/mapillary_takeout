@@ -398,13 +398,18 @@ def main(email, password, username, output_folder, start_date, end_date):
             % (accumulated_stats[1], accumulated_stats[0],)
         )
         download_size = accumulated_stats[1] * AVERAGE_IMAGE_SIZE;
-        print("Estimated download size: %2.1f GB" % (download_size / 1024/1024/1024))
-        print("Estimated download time 250Mbit/s: %2.1f min, 100Mbit/s: %2.1f min, 50Mbit/s: %2.1f min, 16Mbit/s %2.1f min" % (
-            (download_size / 250/1000/1000*8/60),
-            (download_size / 100/1000/1000*8/60),
-            (download_size /  50/1000/1000*8/60),
-            (download_size /  16/1000/1000*8/60),
-        ))
+
+        if accumulated_stats[1] == 0:
+            print("You are up-to-date, all images are already downloaded. Great!")
+        else:
+            print("Estimated download size: %2.1f GB" % (download_size / 1024/1024/1024))
+            print("Estimated download time 250Mbit/s: %2.1f min, 100Mbit/s: %2.1f min, 50Mbit/s: %2.1f min, 16Mbit/s %2.1f min" % (
+                (download_size / 250/1000/1000*8/60),
+                (download_size / 100/1000/1000*8/60),
+                (download_size /  50/1000/1000*8/60),
+                (download_size /  16/1000/1000*8/60),
+            ))
+
     else:
         global _DOWNLOAD_TOTAL_SIZE
         if accumulated_stats[1] > 0:
