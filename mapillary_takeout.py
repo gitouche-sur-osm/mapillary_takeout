@@ -138,7 +138,13 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
             print("Error downloading next URL %r" % r.links["next"]["url"])
             continue
 
-        for feature in r.json()["features"]:
+        try:
+            json = r.json()
+        except:
+            print("Error parsing json object, ignore")
+            continue
+
+        for feature in json["features"]:
             response.append(feature)
             nb_images += len(
                 feature["properties"]["coordinateProperties"]["image_keys"]
