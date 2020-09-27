@@ -131,6 +131,11 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
         nb_images += len(feature["properties"]["coordinateProperties"]["image_keys"])
     r.close()
     nb_seq = len(response)
+
+    # first run: 100 sequences (xxx images)
+    if DEBUG >= 1:
+        print("Fetched %s sequences (%s images) ..." % (nb_seq, nb_images), end="\r")
+
     while "next" in r.links:
         try:
             r = requests.get(r.links["next"]["url"], headers=headers, timeout=META_TIMEOUT)
