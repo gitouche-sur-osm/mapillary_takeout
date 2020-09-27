@@ -434,7 +434,7 @@ def main(email, password, username, output_folder, start_date, end_date):
                 _DOWNLOAD_TOTAL_SIZE/1024/1024/1024,
                 _DOWNLOAD_TOTAL_SIZE/accumulated_stats[1]/1024/1024))
         else:
-            print("Nothing to download")
+            print("You are up-to-date, all images are already downloaded. Great!")
             
     return 0
 
