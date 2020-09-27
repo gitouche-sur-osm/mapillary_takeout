@@ -153,7 +153,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
         r.close()
         nb_seq = len(response)
         if DEBUG >= 1:
-            print("Fetched %s sequences (%s images) ..." % (nb_seq, nb_images))
+            print("Fetched %s sequences (%s images) ..." % (nb_seq, nb_images), end="\r")
     return (response, nb_seq)
 
 
