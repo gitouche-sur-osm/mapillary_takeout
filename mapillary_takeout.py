@@ -122,6 +122,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
 
     try:
         r.json()
+        r.json()["features"]
     except:
         raise DownloadException("Error parsing json response, give up")
 
