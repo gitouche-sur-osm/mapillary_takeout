@@ -454,7 +454,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--end-date",
-        help="Filter sequences that are captured before this date",
+        help="Filter sequences that are captured before this date (Note: end date is not included!)",
         metavar="YYYY-MM-DD",
     )
     parser.add_argument( "--debug", metavar="0..3",  help="set global debug level")
