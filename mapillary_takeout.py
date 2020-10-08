@@ -317,7 +317,7 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
 
         if len(download_list) > len(source_urls):
             print(
-                " Missing %d/%d images : will refresh and retry later"
+                " Missing %d/%d images, will refresh and retry later"
                 % (len(download_list) - len(source_urls), len(download_list))
             )
             
