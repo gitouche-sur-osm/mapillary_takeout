@@ -122,7 +122,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
 
     # validate result
     if r.status_code != requests.codes.ok:
-        raise DownloadException("Error status response: HTTP " + str(r.status_code) + " give up!")
+        raise DownloadException("Error status response sequence URL: HTTP " + str(r.status_code) + " give up!")
 
     try:
         r.json()
@@ -149,7 +149,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
             continue
     
         if r.status_code != requests.codes.ok:
-            print("Error status response: HTTP %d ignore" % r.status_code)
+            print("Error status response links: HTTP %d ignore" % r.status_code)
             continue
 
         try:
