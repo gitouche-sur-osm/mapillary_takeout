@@ -121,6 +121,9 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
         raise DownloadException("Error downloading sequence URL %r" % SEQUENCES_URL)
 
     # validate result
+    if r.status_code != requests.codes.ok:
+        raise DownloadException("Error status response: HTTP " + str(r.status_code) + " give up!")
+
     try:
         r.json()
         r.json()["features"]
@@ -143,6 +146,10 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
             r = requests.get(r.links["next"]["url"], headers=headers, timeout=META_TIMEOUT)
         except:
             print("Error downloading next URL %r" % r.links["next"]["url"])
+            continue
+    
+        if r.status_code != requests.codes.ok:
+            print("Error status response: HTTP %d ignore" % r.status_code)
             continue
 
         try:
