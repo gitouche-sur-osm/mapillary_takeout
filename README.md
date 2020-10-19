@@ -54,8 +54,9 @@ optional arguments:
   --start-date YYYY-MM-DD
                         Filter sequences that are captured since this date
   --end-date YYYY-MM-DD
-			Filter sequences that are captured before this date
-  --debug 0..2          set global debug level
+                        Filter sequences that are captured before this date (Note: end date is
+                        not included!)
+  --debug 0..3          set global debug level
   --timeout 1..300      set connection/read timeout in seconds
   --timeout-meta 1..300
                         set connection/read timeout for meta requests in seconds
