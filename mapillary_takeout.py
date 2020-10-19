@@ -203,7 +203,12 @@ def get_source_urls(download_list, mpy_token, username):
             r = requests.get(MODEL_URL, headers=headers, params=params, timeout=META_TIMEOUT)
         except:
             raise DownloadException("Error downloading model URL %r, ignore sequence" % MODEL_URL)
-                                                                                             
+                   
+        if r.status_code != requests.codes.ok:
+            print("Error status response: HTTP %d ignore sequence")
+            r.close()
+            continue
+                                                                          
         try:                                                                                     
             data = r.json()
         except:
