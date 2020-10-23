@@ -24,7 +24,6 @@ cd mapillary_takeout-master
 ```
 #### Run the code
 ```
-chmod +x mapillary_takeout.py
 ./mapillary_takeout.py <email> <password> <username> <output_folder>
 ```
 Example
@@ -37,8 +36,9 @@ You should quote your fields if they contain special characters :
 ```
 ## Full usage
 ```
-usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD]
-                            [--end-date YYYY-MM-DD] [-D]
+usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD] [--end-date YYYY-MM-DD]
+                            [--debug 0..3] [--timeout 1..300] [--timeout-meta 1..300]
+                            [--threads 1..128] [--retries 1..512] [-D]
                             email password username output_folder
 
 Download your images from Mapillary
@@ -54,8 +54,15 @@ optional arguments:
   --start-date YYYY-MM-DD
                         Filter sequences that are captured since this date
   --end-date YYYY-MM-DD
-			Filter sequences that are captured before this date
-  -D, --dry-run         Check sequences status and leave
+                        Filter sequences that are captured before this date (Note: end date is
+                        not included!)
+  --debug 0..3          set global debug level
+  --timeout 1..300      set connection/read timeout in seconds
+  --timeout-meta 1..300
+                        set connection/read timeout for meta requests in seconds
+  --threads 1..128      number of threads
+  --retries 1..512      sequence max. retries
+  -D, --dry-run         Check sequences status, display estimates and leave
 ```							
 
 ## Friendly projects
