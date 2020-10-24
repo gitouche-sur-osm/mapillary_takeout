@@ -1,6 +1,12 @@
 # mapillary_takeout
 
-This script downloads your imagery from Mapillary. The official mapillary_tools download option only allows for bulk download of the blurred and compressed versions of the images. This script will download the "original unprocessed" images as you sent them to Mapillary.
+This script downloads your imagery from Mapillary.
+The official mapillary_tools download option only allows for bulk download of
+the blurred and compressed versions of the images. 
+This script will download the "original unprocessed" images as you sent them to Mapillary.
+
+Note: due to privacy regulations you may get only a blurred version of your original images,
+but the size, resolution, and metadata will still be the same as the original.
 
 ## Getting started
 
@@ -36,12 +42,13 @@ You should quote your fields if they contain special characters :
 ```
 ## Full usage
 ```
+./mapillary_takeout.py --help
 usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD] [--end-date YYYY-MM-DD]
                             [--debug 0..3] [--timeout 1..300] [--timeout-meta 1..300]
                             [--threads 1..128] [--retries 1..512] [-D]
                             email password username output_folder
 
-Download your images from Mapillary
+Download your images from Mapillary, version: 1.2
 
 positional arguments:
   email                 Your email address for mapillary authentication
@@ -54,15 +61,16 @@ optional arguments:
   --start-date YYYY-MM-DD
                         Filter sequences that are captured since this date
   --end-date YYYY-MM-DD
-                        Filter sequences that are captured before this date (Note: end date is
-                        not included!)
-  --debug 0..3          set global debug level
-  --timeout 1..300      set connection/read timeout in seconds
+                        Filter sequences that are captured before this date 
+                        (Note: end date is not included!)
+  --debug 0..3          set global debug level, default: 0
+  --timeout 1..300      set connection/read timeout in seconds, default: 5
   --timeout-meta 1..300
-                        set connection/read timeout for meta requests in seconds
-  --threads 1..128      number of threads
-  --retries 1..512      sequence max. retries
+                        set connection/read timeout for meta requests in seconds, default: 60
+  --threads 1..128      number of threads, default: 16
+  --retries 1..512      sequence max. retries, default: 128
   -D, --dry-run         Check sequences status, display estimates and leave
+  --subfolder           Store images by date and sequence subfolders, default: False
 ```							
 
 ## Friendly projects
@@ -77,5 +85,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 ## Acknowledgments
 
 * Simon Mikkelsen original gist https://gist.github.com/simonmikkelsen/478accbc7b62c0c7786d6cd95fb09cae
+* Wolfram Schneider
 * Anonymous helper (thank you!)
 * Another anonymous helper (thank you very much!)
+

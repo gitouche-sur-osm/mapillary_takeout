@@ -7,13 +7,15 @@ import re
 import requests
 import sys
 import time
+from pprint import pprint
 
 from multiprocessing.pool import ThreadPool
-
 
 ##################################################################################################
 # config
 #
+VERSION = "1.2"
+
 NUM_THREADS = 16
 
 # mapillary_tools client_id
@@ -31,11 +33,12 @@ REQUESTS_PER_CALL = 210
 # to download 3k of images
 SEQUENCE_DL_MAX_RETRIES = 128
 
-# verbose level 0..2
+# verbose level 0..4
 # 0: only import messages, like errors
 # 1: more verbose
 # 2: full verbose
 # 3: debug
+# 4: more debug
 DEBUG = 0
 
 # connection timeout to AWS S3
@@ -59,7 +62,12 @@ MODEL_URL = API_ENDPOINT + "/v3/model.json?client_id=" + CLIENT_ID
 
 AWS_EXPIRED = '<\?xml version="1\.0" encoding="UTF-8"\?>\\n<Error><Code>AccessDenied<\/Code><Message>Request has expired<\/Message>'
 
+# show what we would do
 DRY_RUN = False
+
+# Store images by date and sequence subfolders.
+# Disabled by default to be compatible with older versions.
+SUBFOLDER = False
 
 # count downloads per sequence
 _DOWNLOAD_SEQUENCE_SIZE = 0
@@ -274,10 +282,15 @@ def download_file(args):
 def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequences):
     global _DOWNLOAD_SEQUENCE_SIZE
     global _DOWNLOAD_TOTAL_SIZE
+
+    subfolder_enabled = SUBFOLDER
     
     if DEBUG >= 3:
         print(" Prepare sequence download")
-        
+       
+    if DEBUG >= 4:
+        pprint(sequence)
+ 
     sequence_name = (
         sequence["properties"]["captured_at"]
         + "_"
@@ -287,6 +300,13 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
         sequence_name = sequence_name.replace(":", "_")
     sequence_day = sequence_name.split("T")[0]
     sorted_folder = output_folder + "/" + sequence_day
+
+    if subfolder_enabled == 1:
+        subfolder = sequence["properties"]["captured_at"]
+        if os.name == "nt":
+            subfolder = subfolder.replace(":", "_")
+        sorted_folder = sorted_folder + "/" + subfolder
+
     download_list = []
     os.makedirs(sorted_folder, exist_ok=True)
 
@@ -383,7 +403,7 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
         finally:
             pool.terminate()
             pool.join()
-    print(" Done sequence %r (%d/%d) %3.1f MB" % (sequence_name, c, nb_sequences, _DOWNLOAD_SEQUENCE_SIZE/1024/1024), flush=True)
+    print(" Done sequence %r (%d/%d) %3.1f MB, camera: %s" % (sequence_name, c, nb_sequences, _DOWNLOAD_SEQUENCE_SIZE/1024/1024, sequence["properties"]["camera_make"]), flush=True)
     _DOWNLOAD_TOTAL_SIZE += _DOWNLOAD_SEQUENCE_SIZE
     _DOWNLOAD_SEQUENCE_SIZE = 0
                     
@@ -413,13 +433,14 @@ def main(email, password, username, output_folder, start_date, end_date):
         
         if DEBUG >= 2:
             print(
-                "Sequence %s_%s (%d/%d) contains %d images"
+                "Sequence %s_%s (%d/%d) contains %d images camera: %s"
                 % (
                     sequence["properties"]["captured_at"],
                     sequence["properties"]["created_at"],
                     c,
                     nb_sequences,
-                    stats[1]
+                    stats[1],
+                    sequence["properties"]["camera_make"],
                 )
             )
     if DRY_RUN:
@@ -454,7 +475,7 @@ def main(email, password, username, output_folder, start_date, end_date):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Download your images from Mapillary")
+    parser = argparse.ArgumentParser(description="Download your images from Mapillary, version: " + VERSION)
     parser.add_argument("email", help="Your email address for mapillary authentication")
     parser.add_argument("password", help="Your mapillary password")
     parser.add_argument("username", help="Your mapillary username")
@@ -469,18 +490,22 @@ if __name__ == "__main__":
         help="Filter sequences that are captured before this date (Note: end date is not included!)",
         metavar="YYYY-MM-DD",
     )
-    parser.add_argument( "--debug", metavar="0..3",  help="set global debug level")
-    parser.add_argument( "--timeout", metavar="1..300",  help="set connection/read timeout in seconds")
-    parser.add_argument( "--timeout-meta", metavar="1..300",  help="set connection/read timeout for meta requests in seconds")
-    parser.add_argument( "--threads", metavar="1..128",  help="number of threads")
-    parser.add_argument( "--retries", metavar="1..512",  help="sequence max. retries")
+    parser.add_argument( "--debug", metavar="0..3",  help="set global debug level, default: " + str(DEBUG))
+    parser.add_argument( "--timeout", metavar="1..300",  help="set connection/read timeout in seconds, default: " + str(DOWNLOAD_FILE_TIMEOUT))
+    parser.add_argument( "--timeout-meta", metavar="1..300",  help="set connection/read timeout for meta requests in seconds, default: " + str(META_TIMEOUT))
+    parser.add_argument( "--threads", metavar="1..128",  help="number of threads, default: " + str(NUM_THREADS))
+    parser.add_argument( "--retries", metavar="1..512",  help="sequence max. retries, default: " + str(SEQUENCE_DL_MAX_RETRIES))
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status, display estimates and leave"
     )
+    parser.add_argument( "--subfolder", action="store_true", help="Store images by date and sequence subfolders, default: " + str(SUBFOLDER))
     args = parser.parse_args()
 
     if args.dry_run:
         DRY_RUN = True
+
+    if args.subfolder:
+        SUBFOLDER = True
 
     if args.debug:
         try:
@@ -488,10 +513,10 @@ if __name__ == "__main__":
         except:
             print("illegal value for debug: %s" % args.debug)
             sys.exit(-1)
-        if debug >= 0 and debug <= 3:
+        if debug >= 0 and debug <= 4:
             DEBUG = debug
         else:
-            print ("debug parameter is out of range 0..3: %s, ignored" % debug)
+            print ("debug parameter is out of range 0..4: %s, ignored" % debug)
 
     if args.timeout:
         try:
@@ -538,7 +563,7 @@ if __name__ == "__main__":
             print ("retries parameter is out of range 0..512: %s, ignored" % retries)
 
     if DEBUG > 0:
-        print("number of threads: %d, connection timeout: %2.1f sec., retries: %d, debug: %d" % (NUM_THREADS, DOWNLOAD_FILE_TIMEOUT, SEQUENCE_DL_MAX_RETRIES, DEBUG))
+        print("number of threads: %d, connection timeout: %2.1f sec., retries: %d, debug: %d, with subfolder: %s" % (NUM_THREADS, DOWNLOAD_FILE_TIMEOUT, SEQUENCE_DL_MAX_RETRIES, DEBUG, SUBFOLDER))
         
     exit(
         main(
