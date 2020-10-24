@@ -15,6 +15,8 @@ but the size, resolution, and metadata will still be the same as the original.
 * Python 3
 * [Requests library](https://requests.readthedocs.io)
 
+on debian run: sudo apt-get install python3-requests
+
 ### Install and run
 #### Get the code
 With git (preffered) :
