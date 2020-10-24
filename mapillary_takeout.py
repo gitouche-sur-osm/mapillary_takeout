@@ -418,13 +418,14 @@ def main(email, password, username, output_folder, start_date, end_date):
         
         if DEBUG >= 2:
             print(
-                "Sequence %s_%s (%d/%d) contains %d images"
+                "Sequence %s_%s (%d/%d) contains %d images camera: %s"
                 % (
                     sequence["properties"]["captured_at"],
                     sequence["properties"]["created_at"],
                     c,
                     nb_sequences,
-                    stats[1]
+                    stats[1],
+                    sequence["properties"]["camera_make"],
                 )
             )
     if DRY_RUN:
