@@ -88,6 +88,5 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 * Simon Mikkelsen original gist https://gist.github.com/simonmikkelsen/478accbc7b62c0c7786d6cd95fb09cae
 * Wolfram Schneider
-* Anonymous helper (thank you!)
-* Another anonymous helper (thank you very much!)
+* Anonymous helpers - thank you very much!
 
