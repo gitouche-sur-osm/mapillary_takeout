@@ -62,7 +62,12 @@ MODEL_URL = API_ENDPOINT + "/v3/model.json?client_id=" + CLIENT_ID
 
 AWS_EXPIRED = '<\?xml version="1\.0" encoding="UTF-8"\?>\\n<Error><Code>AccessDenied<\/Code><Message>Request has expired<\/Message>'
 
+# show what we would do
 DRY_RUN = False
+
+# Store images by date and sequence subfolders.
+# Disabled by default to be compatible with older versions.
+SUBFOLDER = False
 
 # count downloads per sequence
 _DOWNLOAD_SEQUENCE_SIZE = 0
@@ -277,6 +282,8 @@ def download_file(args):
 def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequences):
     global _DOWNLOAD_SEQUENCE_SIZE
     global _DOWNLOAD_TOTAL_SIZE
+
+    subfolder_enabled = SUBFOLDER
     
     if DEBUG >= 3:
         print(" Prepare sequence download")
@@ -293,6 +300,13 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
         sequence_name = sequence_name.replace(":", "_")
     sequence_day = sequence_name.split("T")[0]
     sorted_folder = output_folder + "/" + sequence_day
+
+    if subfolder_enabled == 1:
+        subfolder = sequence["properties"]["captured_at"]
+        if os.name == "nt":
+            subfolder = subfolder.replace(":", "_")
+        sorted_folder = sorted_folder + "/" + subfolder
+
     download_list = []
     os.makedirs(sorted_folder, exist_ok=True)
 
@@ -484,10 +498,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status, display estimates and leave"
     )
+    parser.add_argument( "--subfolder", action="store_true", help="Store images by date and sequence subfolders, default: " + str(SUBFOLDER))
     args = parser.parse_args()
 
     if args.dry_run:
         DRY_RUN = True
+
+    if args.subfolder:
+        SUBFOLDER = True
 
     if args.debug:
         try:
@@ -545,7 +563,7 @@ if __name__ == "__main__":
             print ("retries parameter is out of range 0..512: %s, ignored" % retries)
 
     if DEBUG > 0:
-        print("number of threads: %d, connection timeout: %2.1f sec., retries: %d, debug: %d" % (NUM_THREADS, DOWNLOAD_FILE_TIMEOUT, SEQUENCE_DL_MAX_RETRIES, DEBUG))
+        print("number of threads: %d, connection timeout: %2.1f sec., retries: %d, debug: %d, with subfolder: %s" % (NUM_THREADS, DOWNLOAD_FILE_TIMEOUT, SEQUENCE_DL_MAX_RETRIES, DEBUG, SUBFOLDER))
         
     exit(
         main(
