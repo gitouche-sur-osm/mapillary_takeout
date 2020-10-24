@@ -498,7 +498,7 @@ if __name__ == "__main__":
         if debug >= 0 and debug <= 4:
             DEBUG = debug
         else:
-            print ("debug parameter is out of range 0..3: %s, ignored" % debug)
+            print ("debug parameter is out of range 0..4: %s, ignored" % debug)
 
     if args.timeout:
         try:

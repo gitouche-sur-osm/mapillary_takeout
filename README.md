@@ -42,12 +42,13 @@ You should quote your fields if they contain special characters :
 ```
 ## Full usage
 ```
+./mapillary_takeout.py --help
 usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD] [--end-date YYYY-MM-DD]
                             [--debug 0..3] [--timeout 1..300] [--timeout-meta 1..300]
                             [--threads 1..128] [--retries 1..512] [-D]
                             email password username output_folder
 
-Download your images from Mapillary
+Download your images from Mapillary, version: 1.1
 
 positional arguments:
   email                 Your email address for mapillary authentication
@@ -60,8 +61,8 @@ optional arguments:
   --start-date YYYY-MM-DD
                         Filter sequences that are captured since this date
   --end-date YYYY-MM-DD
-                        Filter sequences that are captured before this date (Note: end date is
-                        not included!)
+                        Filter sequences that are captured before this date
+                        (Note: end date is not included!)
   --debug 0..3          set global debug level
   --timeout 1..300      set connection/read timeout in seconds
   --timeout-meta 1..300
@@ -86,3 +87,4 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 * Wolfram Schneider
 * Anonymous helper (thank you!)
 * Another anonymous helper (thank you very much!)
+
