@@ -46,7 +46,7 @@ You should quote your fields if they contain special characters :
 ```
 ./mapillary_takeout.py --help
 usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD] [--end-date YYYY-MM-DD]
-                            [--debug 0..3] [--timeout 1..300] [--timeout-meta 1..300]
+                            [--debug 0..4] [--timeout 1..300] [--timeout-meta 1..300]
                             [--threads 1..128] [--retries 1..512] [-D]
                             email password username output_folder
 
@@ -65,7 +65,7 @@ optional arguments:
   --end-date YYYY-MM-DD
                         Filter sequences that are captured before this date 
                         (Note: end date is not included!)
-  --debug 0..3          set global debug level, default: 0
+  --debug 0..4          set global debug level, default: 0
   --timeout 1..300      set connection/read timeout in seconds, default: 5
   --timeout-meta 1..300
                         set connection/read timeout for meta requests in seconds, default: 60

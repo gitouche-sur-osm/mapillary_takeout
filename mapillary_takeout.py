@@ -490,7 +490,7 @@ if __name__ == "__main__":
         help="Filter sequences that are captured before this date (Note: end date is not included!)",
         metavar="YYYY-MM-DD",
     )
-    parser.add_argument( "--debug", metavar="0..3",  help="set global debug level, default: " + str(DEBUG))
+    parser.add_argument( "--debug", metavar="0..4",  help="set global debug level, default: " + str(DEBUG))
     parser.add_argument( "--timeout", metavar="1..300",  help="set connection/read timeout in seconds, default: " + str(DOWNLOAD_FILE_TIMEOUT))
     parser.add_argument( "--timeout-meta", metavar="1..300",  help="set connection/read timeout for meta requests in seconds, default: " + str(META_TIMEOUT))
     parser.add_argument( "--threads", metavar="1..128",  help="number of threads, default: " + str(NUM_THREADS))
