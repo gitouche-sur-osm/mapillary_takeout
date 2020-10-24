@@ -14,7 +14,7 @@ from multiprocessing.pool import ThreadPool
 ##################################################################################################
 # config
 #
-VERSION = "1.1"
+VERSION = "1.2"
 
 NUM_THREADS = 16
 
@@ -490,11 +490,11 @@ if __name__ == "__main__":
         help="Filter sequences that are captured before this date (Note: end date is not included!)",
         metavar="YYYY-MM-DD",
     )
-    parser.add_argument( "--debug", metavar="0..3",  help="set global debug level")
-    parser.add_argument( "--timeout", metavar="1..300",  help="set connection/read timeout in seconds")
-    parser.add_argument( "--timeout-meta", metavar="1..300",  help="set connection/read timeout for meta requests in seconds")
-    parser.add_argument( "--threads", metavar="1..128",  help="number of threads")
-    parser.add_argument( "--retries", metavar="1..512",  help="sequence max. retries")
+    parser.add_argument( "--debug", metavar="0..3",  help="set global debug level, default: " + str(DEBUG))
+    parser.add_argument( "--timeout", metavar="1..300",  help="set connection/read timeout in seconds, default: " + str(DOWNLOAD_FILE_TIMEOUT))
+    parser.add_argument( "--timeout-meta", metavar="1..300",  help="set connection/read timeout for meta requests in seconds, default: " + str(META_TIMEOUT))
+    parser.add_argument( "--threads", metavar="1..128",  help="number of threads, default: " + str(NUM_THREADS))
+    parser.add_argument( "--retries", metavar="1..512",  help="sequence max. retries, default: " + str(SEQUENCE_DL_MAX_RETRIES))
     parser.add_argument(
         "-D", "--dry-run", action="store_true", help="Check sequences status, display estimates and leave"
     )

@@ -48,7 +48,7 @@ usage: mapillary_takeout.py [-h] [--start-date YYYY-MM-DD] [--end-date YYYY-MM-D
                             [--threads 1..128] [--retries 1..512] [-D]
                             email password username output_folder
 
-Download your images from Mapillary, version: 1.1
+Download your images from Mapillary, version: 1.2
 
 positional arguments:
   email                 Your email address for mapillary authentication
@@ -61,15 +61,16 @@ optional arguments:
   --start-date YYYY-MM-DD
                         Filter sequences that are captured since this date
   --end-date YYYY-MM-DD
-                        Filter sequences that are captured before this date
+                        Filter sequences that are captured before this date 
                         (Note: end date is not included!)
-  --debug 0..3          set global debug level
-  --timeout 1..300      set connection/read timeout in seconds
+  --debug 0..3          set global debug level, default: 0
+  --timeout 1..300      set connection/read timeout in seconds, default: 5
   --timeout-meta 1..300
-                        set connection/read timeout for meta requests in seconds
-  --threads 1..128      number of threads
-  --retries 1..512      sequence max. retries
+                        set connection/read timeout for meta requests in seconds, default: 60
+  --threads 1..128      number of threads, default: 16
+  --retries 1..512      sequence max. retries, default: 128
   -D, --dry-run         Check sequences status, display estimates and leave
+  --subfolder           Store images by date and sequence subfolders, default: False
 ```							
 
 ## Friendly projects
