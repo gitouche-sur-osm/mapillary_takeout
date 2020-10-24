@@ -11,10 +11,11 @@ from pprint import pprint
 
 from multiprocessing.pool import ThreadPool
 
-
 ##################################################################################################
 # config
 #
+VERSION = "1.1"
+
 NUM_THREADS = 16
 
 # mapillary_tools client_id
@@ -460,7 +461,7 @@ def main(email, password, username, output_folder, start_date, end_date):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Download your images from Mapillary")
+    parser = argparse.ArgumentParser(description="Download your images from Mapillary, version: " + VERSION)
     parser.add_argument("email", help="Your email address for mapillary authentication")
     parser.add_argument("password", help="Your mapillary password")
     parser.add_argument("username", help="Your mapillary username")
