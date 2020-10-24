@@ -403,7 +403,7 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
         finally:
             pool.terminate()
             pool.join()
-    print(" Done sequence %r (%d/%d) %3.1f MB" % (sequence_name, c, nb_sequences, _DOWNLOAD_SEQUENCE_SIZE/1024/1024), flush=True)
+    print(" Done sequence %r (%d/%d) %3.1f MB, camera: %s" % (sequence_name, c, nb_sequences, _DOWNLOAD_SEQUENCE_SIZE/1024/1024, sequence["properties"]["camera_make"]), flush=True)
     _DOWNLOAD_TOTAL_SIZE += _DOWNLOAD_SEQUENCE_SIZE
     _DOWNLOAD_SEQUENCE_SIZE = 0
                     
