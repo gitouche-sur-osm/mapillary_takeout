@@ -7,6 +7,7 @@ import re
 import requests
 import sys
 import time
+from pprint import pprint
 
 from multiprocessing.pool import ThreadPool
 
@@ -31,11 +32,12 @@ REQUESTS_PER_CALL = 210
 # to download 3k of images
 SEQUENCE_DL_MAX_RETRIES = 128
 
-# verbose level 0..2
+# verbose level 0..4
 # 0: only import messages, like errors
 # 1: more verbose
 # 2: full verbose
 # 3: debug
+# 4: more debug
 DEBUG = 0
 
 # connection timeout to AWS S3
@@ -277,7 +279,10 @@ def download_sequence(output_folder, mpy_token, sequence, username, c, nb_sequen
     
     if DEBUG >= 3:
         print(" Prepare sequence download")
-        
+       
+    if DEBUG >= 4:
+        pprint(sequence)
+ 
     sequence_name = (
         sequence["properties"]["captured_at"]
         + "_"
@@ -488,7 +493,7 @@ if __name__ == "__main__":
         except:
             print("illegal value for debug: %s" % args.debug)
             sys.exit(-1)
-        if debug >= 0 and debug <= 3:
+        if debug >= 0 and debug <= 4:
             DEBUG = debug
         else:
             print ("debug parameter is out of range 0..3: %s, ignored" % debug)
