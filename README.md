@@ -17,6 +17,8 @@ but the size, resolution, and metadata will still be the same as the original.
 
 on debian run: sudo apt-get install python3-requests
 
+on MacOS run: brew install python3 && python3 -m pip install requests
+
 ### Install and run
 #### Get the code
 With git (preffered) :
