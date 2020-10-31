@@ -1,4 +1,11 @@
 #!/bin/sh
+# Copyright (c) 2020-2020 Wolfram Schneider, https://bbbike.org
+#
+# migrate2subfolders.sh - migrated already downloaded images to new sub-folders
+#
+# usage: cd /mnt/mapillary-disk && migrate2subfolders.sh
+#
+
 
 set -e
 
