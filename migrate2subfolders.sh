@@ -24,7 +24,7 @@ do
   cd $j
   if ls | grep -q jpg; then
     pwd
-    for i in $(ls | sed -e 's,Z.*,Z,'| sort -u)
+    for i in $(ls | grep '\.jpg$' | sed -e 's,Z.*,Z,'| sort -u)
     do
       echo $i
       for k in 0 1 2 3 4 5 6 7 8 9
