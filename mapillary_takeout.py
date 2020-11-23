@@ -157,7 +157,7 @@ def get_user_sequences(mpy_token, username, start_date, end_date):
             continue
     
         if r.status_code != requests.codes.ok:
-            print("Error status response links: HTTP %d ignore" % r.status_code)
+            print("Error status response links: HTTP %d - ignore." % r.status_code)
             continue
 
         try:
