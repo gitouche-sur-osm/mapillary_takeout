@@ -1,12 +1,12 @@
 # mapillary_takeout
 
 ```diff
--PLEASE NOTE: this script was written for mapillary API version 3, running on
--the old mapillary Amazon AWS infrastructure. Starting in June 2021 mapillary 
--switched to API v4 on Facebook infrastructure and the takeout scripts stopped working.
--The migration from API v3 to v4 is still work in progress, see the mapillary forum.
--Given that v4 is not ready for production use we cannot make an estimate when
--the mapillary takeout scripts will work again. Sorry!!! And thanks for your patience!
+- PLEASE NOTE: this script was written for mapillary API version 3, running on
+- the old mapillary Amazon AWS infrastructure. Starting in June 2021 mapillary 
+- switched to API v4 on Facebook infrastructure and the takeout scripts stopped working.
+- The migration from API v3 to v4 is still work in progress, see the mapillary forum.
+- Given that v4 is not ready for production use we cannot make an estimate when
+- the mapillary takeout scripts will work again. Sorry!!! And thanks for your patience!
 ```
 
 This script downloads your imagery from Mapillary.
